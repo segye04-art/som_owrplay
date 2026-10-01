@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오버워치 리플 신청소</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @font-face {
+            font-family: 'RIDIBatang';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.0/RIDIBatang.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            font-family: 'RIDIBatang', serif;
+            background-color: #fcf6f5;
+            color: #4a3b3c;
+            scroll-behavior: smooth;
+        }
+
+        .rose-shadow {
+            box-shadow: 0 4px 20px -2px rgba(176, 115, 112, 0.12);
+        }
+
+        /* 커스텀 스크롤바 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fcf6f5;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d7b2af;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #b07370;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        roseGold: {
+                            50: '#fcf6f5',
+                            100: '#f5e8e6',
+                            200: '#e8d2d0',
+                            300: '#d7b2af',
+                            400: '#c28f8c',
+                            500: '#b07370',
+                            600: '#9c5f5c',
+                            700: '#824e4c',
+                            800: '#693e3d',
+                            900: '#543231',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen py-10 px-4 sm:px-6">
+    <div class="max-w-3xl mx-auto space-y-8">
+        
+        <!-- 🌸 헤더 및 타이틀 -->
+        <header class="bg-white rounded-2xl p-6 sm:p-8 rose-shadow border border-roseGold-200 text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-roseGold-300 via-roseGold-400 to-roseGold-500"></div>
+            <span class="inline-block px-3 py-1 bg-roseGold-100 text-roseGold-700 text-xs font-semibold rounded-full mb-3">OVERWATCH REPLAY STATION</span>
+            <h1 class="text-2xl sm:text-3xl font-bold text-roseGold-900 mb-2">🎮 오버워치 리플 신청소</h1>
+            <p class="text-roseGold-600 text-sm">자유롭게 여러분들의 플레이를 자랑해주세요</p>
+        </header>
+
+        <!-- 📌 신청 안내 및 양식 요약 (직관적 2분할 카드) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 안내 카드 (우선 시청권 강조 포함) -->
+            <section class="bg-white rounded-2xl p-6 rose-shadow border border-roseGold-200 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-base font-bold text-roseGold-800 mb-3 flex items-center gap-2">
+                        <span>📌</span> 신청 핵심 안내
+                    </h2>
+                    <ul class="space-y-2 text-xs text-roseGold-900/80 leading-relaxed">
+                        <li>• 1인당 최대 2개까지 신청 가능</li>
+                        <li class="text-roseGold-600 font-medium">└ 🌸 팔로우 유입 시 무료 신청권 1장 지급!</li>
+                        <li>• 기본 최대 리플 슬롯: <strong>12개</strong></li>
+                        <li>• 추가 신청은 <strong>2,000 치즈 이상</strong>부터 가능</li>
+                        <li class="p-2.5 bg-roseGold-50 rounded-lg border border-roseGold-300 text-roseGold-900 font-medium my-1.5 shadow-sm">
+                            ⭐ <strong class="text-roseGold-700">최고의 리플로 선정 시</strong><br>다음 리플 시간에 <span class="bg-roseGold-200 px-1 py-0.5 rounded text-roseGold-900 font-bold">우선 시청권 획득 *자동 사용*</span>
+                        </li>
+                        <li>• 마감: 매주 월요일 오후 7시 (리플데이에만 가능)</li>
+                    </ul>
+                </div>
+                <div class="mt-4 pt-3 border-t border-roseGold-100 text-[11px] text-roseGold-500">
+                    🩷 구독자는 아래 추가 혜택 선택 가능
+                </div>
+            </section>
+
+            <!-- 양식 카드 -->
+            <section class="bg-roseGold-50 rounded-2xl p-6 border border-roseGold-200 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-base font-bold text-roseGold-800 mb-2 flex items-center gap-2">
+                        <span>📝</span> 신청 양식 안내
+                    </h2>
+                    <p class="text-[11px] text-roseGold-600 mb-3 font-mono bg-white p-2 rounded border border-roseGold-200">
+                        리플코드 / 경쟁(빠대) / 닉네임 / 제목(선택)
+                    </p>
+                    <div class="space-y-1.5 text-xs text-roseGold-900">
+                        <p>✔ 경쟁전은 티어를 꼭 선택해 주세요.</p>
+                        <p>✔ 티어 맞춤은 <strong class="text-roseGold-600">"티맞"</strong> 체크박스 이용!</p>
+                    </div>
+                </div>
+                <div class="mt-4 text-center text-xs font-semibold text-roseGold-700 bg-roseGold-100/70 py-2 rounded-xl">
+                    💗 양식에 맞게 정확히 작성해주세요!
+                </div>
+            </section>
+        </div>
+
+        <!-- 🛠️ 실시간 신청 폼 -->
+        <section class="bg-white rounded-2xl p-6 sm:p-8 rose-shadow border border-roseGold-200">
+            <h2 class="text-lg font-bold text-roseGold-800 mb-6 flex items-center gap-2">
+                <span>✨</span> 리플 신청 작성하기
+            </h2>
+
+            <form id="applyForm" onsubmit="handleApply(event)" class="space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- 리플코드 -->
+                    <div>
+                        <label class="block text-xs font-semibold text-roseGold-700 mb-1">리플코드 *</label>
+                        <input type="text" id="replayCode" required placeholder="예: ABC123XYZ" 
+                            class="w-full px-4 py-2.5 rounded-xl border border-roseGold-200 focus:outline-none focus:ring-2 focus:ring-roseGold-400 text-sm">
+                    </div>
+                    <!-- 게임 모드 -->
+                    <div>
+                        <label class="block text-xs font-semibold text-roseGold-700 mb-1">게임 모드 *</label>
+                        <select id="gameMode" onchange="toggleTierInput()" class="w-full px-4 py-2.5 rounded-xl border border-roseGold-200 focus:outline-none focus:ring-2 focus:ring-roseGold-400 text-sm bg-white">
+                            <option value="경쟁">경쟁전</option>
+                            <option value="빠대">빠른 대전</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- 닉네임 / 팀명 -->
+                    <div>
+                        <label class="block text-xs font-semibold text-roseGold-700 mb-1">닉네임 (또는 몇 팀 누구) *</label>
+                        <input type="text" id="nickname" required placeholder="예: 솜하치 또는 1팀 누구" 
+                            class="w-full px-4 py-2.5 rounded-xl border border-roseGold-200 focus:outline-none focus:ring-2 focus:ring-roseGold-400 text-sm">
+                    </div>
+                    <!-- 티어 선택 및 티맞 -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-semibold text-roseGold-700">티어 선택 *</label>
+                            <label class="flex items-center gap-1.5 cursor-pointer text-xs text-roseGold-800 font-medium">
+                                <input type="checkbox" id="tiMatCheck" onclick="toggleTiMat()" class="rounded text-roseGold-500 focus:ring-roseGold-400">
+                                <span>티맞 (티어 맞춤)</span>
+                            </label>
+                        </div>
+                        <select id="tierInput" required class="w-full px-4 py-2.5 rounded-xl border border-roseGold-200 focus:outline-none focus:ring-2 focus:ring-roseGold-400 text-sm bg-white disabled:bg-roseGold-50 disabled:text-gray-400">
+                            <option value="" disabled selected>티어를 선택해주세요</option>
+                            <option value="브론즈">브론즈</option>
+                            <option value="실버">실버</option>
+                            <option value="골드">골드</option>
+                            <option value="플래티넘 (플레)">플래티넘 (플레)</option>
+                            <option value="에메랄드 (에메)">에메랄드 (에메)</option>
+                            <option value="다이아몬드 (다이아)">다이아몬드 (다이아)</option>
+                            <option value="마스터">마스터</option>
+                            <option value="그랜드마스터">그랜드마스터</option>
+                            <option value="챔피언">챔피언</option>
+                            <option value="빠른대전">빠른대전</option>
+                            <option value="티맞">티맞</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 간단한 제목 -->
+                <div>
+                    <label class="block text-xs font-semibold text-roseGold-700 mb-1">간단한 제목 (선택)</label>
+                    <input type="text" id="titleInput" placeholder="예: 키리코로 캐리한 날" 
+                        class="w-full px-4 py-2.5 rounded-xl border border-roseGold-200 focus:outline-none focus:ring-2 focus:ring-roseGold-400 text-sm">
+                </div>
+
+                <!-- 🎁 추가 선택칸 (선택 시 추가 보관함으로 자동 이동) -->
+                <div class="p-4 bg-roseGold-50/60 rounded-xl border border-roseGold-200">
+                    <label class="block text-xs font-bold text-roseGold-800 mb-2">🎁 추가 선택칸 <span class="text-roseGold-500 font-normal">(선택 시 아래 '추가 리플 보관함'으로 자동 이동됩니다)</span></label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <label class="flex items-center gap-2 p-3 rounded-xl border border-roseGold-200 bg-white cursor-pointer hover:bg-roseGold-100/50 transition">
+                            <input type="checkbox" name="extraOption" value="구독자 혜택" onchange="handleExtraOptionChange(this)" class="rounded text-roseGold-500 focus:ring-roseGold-400">
+                            <span class="text-xs font-medium text-roseGold-900">🩷 구독자 혜택</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-3 rounded-xl border border-roseGold-200 bg-white cursor-pointer hover:bg-roseGold-100/50 transition">
+                            <input type="checkbox" name="extraOption" value="팔로우 유입" onchange="handleExtraOptionChange(this)" class="rounded text-roseGold-500 focus:ring-roseGold-400">
+                            <span class="text-xs font-medium text-roseGold-900">🌸 팔로우 유입</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-3 rounded-xl border border-roseGold-200 bg-white cursor-pointer hover:bg-roseGold-100/50 transition">
+                            <input type="checkbox" name="extraOption" value="추가 신청 *2000치즈 이상*" onchange="handleExtraOptionChange(this)" class="rounded text-roseGold-500 focus:ring-roseGold-400">
+                            <span class="text-xs font-medium text-roseGold-900">🧀 추가 신청 (2천치즈+)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 제출 버튼 -->
+                <button type="submit" class="w-full py-3.5 bg-roseGold-500 hover:bg-roseGold-600 text-white font-semibold rounded-xl transition shadow-md hover:shadow-lg text-sm">
+                    리플 신청 제출하기
+                </button>
+            </form>
+        </section>
+
+        <!-- 📦 1. 일반 리플 보관함 -->
+        <section class="bg-white rounded-2xl p-6 sm:p-8 rose-shadow border border-roseGold-200">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+                <div>
+                    <h2 class="text-lg font-bold text-roseGold-800 flex items-center gap-2">
+                        <span>📦</span> 일반 리플 보관함
+                    </h2>
+                    <p class="text-xs text-roseGold-600 mt-0.5">일반 신청된 리플 목록입니다. 시청 완료 시 체크박스를 눌러주세요. (최대 12 슬롯)</p>
+                </div>
+                <div class="text-xs font-bold px-3 py-1.5 bg-roseGold-100 text-roseGold-700 rounded-full" id="generalSlotBadge">
+                    슬롯: 0 / 12
+                </div>
+            </div>
+
+            <div id="generalReplayList" class="space-y-3">
+                <!-- 일반 리플 목록 -->
+            </div>
+            
+            <div id="generalEmptyMessage" class="text-center py-8 text-roseGold-400 text-sm hidden">
+                일반 신청된 리플이 없습니다.
+            </div>
+        </section>
+
+        <!-- 🌟 2. 추가 리플 보관함 (추가 선택칸 선택 시 이동하는 곳) -->
+        <section id="additionalArchive" class="bg-white rounded-2xl p-6 sm:p-8 rose-shadow border-2 border-roseGold-300 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1.5 bg-roseGold-400"></div>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+                <div>
+                    <h2 class="text-lg font-bold text-roseGold-800 flex items-center gap-2">
+                        <span>🌟</span> 추가 리플 보관함 <span class="text-xs px-2 py-0.5 bg-roseGold-100 text-roseGold-700 rounded-md font-normal">구독자/팔로우/추가신청 전용</span>
+                    </h2>
+                    <p class="text-xs text-roseGold-600 mt-0.5">추가 혜택 및 추가 신청 항목이 포함된 리플 보관함입니다.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="text-xs font-bold px-3 py-1.5 bg-roseGold-100 text-roseGold-700 rounded-full" id="additionalSlotBadge">
+                        추가 슬롯: 0개
+                    </div>
+                </div>
+            </div>
+
+            <div id="additionalReplayList" class="space-y-3">
+                <!-- 추가 리플 목록 -->
+            </div>
+            
+            <div id="additionalEmptyMessage" class="text-center py-8 text-roseGold-400 text-sm hidden">
+                추가 선택된 리플이 없습니다. (위 폼에서 추가 선택칸을 체크하고 신청해 보세요!)
+            </div>
+        </section>
+
+        <!-- 전체 초기화 버튼 바 -->
+        <div class="flex justify-end pb-4">
+            <button onclick="fullReset()" class="text-xs bg-red-50 hover:bg-red-100 text-red-500 font-semibold px-4 py-2.5 rounded-xl border border-red-200 transition shadow-sm flex items-center gap-1.5">
+                <span>🗑️</span> 전체 데이터 초기화
+            </button>
+        </div>
+
+        <footer class="text-center text-xs text-roseGold-500 pb-6">
+            © Overwatch Replay Station. Calm Rose Gold Theme. Data persisted locally.
+        </footer>
+    </div>
+
+    <script>
+        // 안전한 로컬스토리지 데이터 로드 및 예외 처리
+        function loadStoredData(key, fallback) {
+            try {
+                const item = localStorage.getItem(key);
+                return item ? JSON.parse(item) : fallback;
+            } catch (e) {
+                console.error('LocalStorage load error:', e);
+                return fallback;
+            }
+        }
+
+        let generalReplays = loadStoredData('ow_general_replays', []);
+        let additionalReplays = loadStoredData('ow_additional_replays', []);
+
+        function toggleTiMat() {
+            const isChecked = document.getElementById('tiMatCheck').checked;
+            const tierInput = document.getElementById('tierInput');
+            if (isChecked) {
+                tierInput.value = '티맞';
+                tierInput.disabled = true;
+            } else {
+                tierInput.disabled = false;
+                tierInput.value = "";
+            }
+        }
+
+        function toggleTierInput() {
+            const gameMode = document.getElementById('gameMode').value;
+            const tierInput = document.getElementById('tierInput');
+            const tiMatCheck = document.getElementById('tiMatCheck');
+            
+            if (gameMode === '빠대') {
+                tierInput.value = '빠른대전';
+                tierInput.disabled = true;
+                tiMatCheck.checked = false;
+                tiMatCheck.disabled = true;
+            } else {
+                tiMatCheck.disabled = false;
+                if (!tiMatCheck.checked) {
+                    tierInput.value = '';
+                    tierInput.disabled = false;
+                }
+            }
+        }
+
+        // 🎁 추가 선택칸 체크 시 자동으로 '추가 리플 보관함'으로 부드럽게 이동
+        function handleExtraOptionChange(checkbox) {
+            if (checkbox.checked) {
+                const addArchive = document.getElementById('additionalArchive');
+                addArchive.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function handleApply(event) {
+            event.preventDefault();
+
+            const code = document.getElementById('replayCode').value.trim();
+            const mode = document.getElementById('gameMode').value;
+            const nickname = document.getElementById('nickname').value.trim();
+            const tier = document.getElementById('tierInput').value;
+            const title = document.getElementById('titleInput').value.trim() || '제목 없음';
+
+            if (!tier) {
+                alert('티어를 선택해주세요!');
+                return;
+            }
+
+            const selectedExtras = [];
+            document.querySelectorAll('input[name="extraOption"]:checked').forEach(cb => {
+                selectedExtras.push(cb.value);
+            });
+
+            const newReplay = {
+                id: Date.now(),
+                code,
+                mode,
+                nickname,
+                tier,
+                title,
+                extras: selectedExtras,
+                watched: false,
+                date: new Date().toLocaleDateString()
+            };
+
+            // 추가 선택칸이 하나라도 체크되어 있다면 '추가 리플 보관함'으로 분류, 아니면 '일반 리플 보관함'
+            if (selectedExtras.length > 0) {
+                additionalReplays.push(newReplay);
+                saveAndRender();
+                document.getElementById('additionalArchive').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                if (generalReplays.length >= 12) {
+                    alert('일반 최대 리플 슬롯(12개)이 마감되었습니다. 추가 신청을 이용해주세요.');
+                    return;
+                }
+                generalReplays.push(newReplay);
+                saveAndRender();
+                document.getElementById('generalReplayList').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            // 폼 초기화
+            document.getElementById('applyForm').reset();
+            document.getElementById('tierInput').disabled = false;
+            document.getElementById('tiMatCheck').checked = false;
+            document.querySelectorAll('input[name="extraOption"]').forEach(cb => cb.checked = false);
+            
+            if (selectedExtras.includes('팔로우 유입')) {
+                alert('🌸 팔로우 유입 신청 확인! 무료 신청권 1장이 적용되어 추가 보관함에 등록되었습니다.');
+            } else if (selectedExtras.length > 0) {
+                alert('추가 혜택/신청 내역이 추가 리플 보관함에 등록되었습니다!');
+            } else {
+                alert('일반 리플 보관함에 성공적으로 신청되었습니다!');
+            }
+        }
+
+        function toggleWatched(id, isAdditional) {
+            if (isAdditional) {
+                additionalReplays = additionalReplays.map(item => item.id === id ? { ...item, watched: !item.watched } : item);
+            } else {
+                generalReplays = generalReplays.map(item => item.id === id ? { ...item, watched: !item.watched } : item);
+            }
+            saveAndRender();
+        }
+
+        function deleteReplay(id, isAdditional) {
+            if (confirm('정말 이 리플 신청 내역을 삭제하시겠습니까?')) {
+                if (isAdditional) {
+                    additionalReplays = additionalReplays.filter(item => item.id !== id);
+                } else {
+                    generalReplays = generalReplays.filter(item => item.id !== id);
+                }
+                saveAndRender();
+            }
+        }
+
+        function fullReset() {
+            if (confirm('모든 일반 및 추가 리플 보관함 데이터가 초기화됩니다. 정말 초기화하시겠습니까?')) {
+                generalReplays = [];
+                additionalReplays = [];
+                try {
+                    localStorage.removeItem('ow_general_replays');
+                    localStorage.removeItem('ow_additional_replays');
+                } catch (e) {
+                    console.error('LocalStorage clear error:', e);
+                }
+                renderReplays();
+                alert('모든 데이터가 초기화되었습니다.');
+            }
+        }
+
+        function saveAndRender() {
+            try {
+                localStorage.setItem('ow_general_replays', JSON.stringify(generalReplays));
+                localStorage.setItem('ow_additional_replays', JSON.stringify(additionalReplays));
+            } catch (e) {
+                console.error('LocalStorage save error:', e);
+                alert('데이터 저장 중 오류가 발생했습니다. 브라우저 저장소 설정을 확인해주세요.');
+            }
+            renderReplays();
+        }
+
+        function renderReplays() {
+            // 1. 일반 보관함 렌더링
+            const genContainer = document.getElementById('generalReplayList');
+            const genEmpty = document.getElementById('generalEmptyMessage');
+            const genBadge = document.getElementById('generalSlotBadge');
+
+            genBadge.textContent = `슬롯: ${generalReplays.length} / 12`;
+            genContainer.innerHTML = '';
+
+            if (generalReplays.length === 0) {
+                genEmpty.classList.remove('hidden');
+            } else {
+                genEmpty.classList.add('hidden');
+                generalReplays.forEach((item, index) => {
+                    genContainer.appendChild(createCardElement(item, index + 1, false));
+                });
+            }
+
+            // 2. 추가 보관함 렌더링
+            const addContainer = document.getElementById('additionalReplayList');
+            const addEmpty = document.getElementById('additionalEmptyMessage');
+            const addBadge = document.getElementById('additionalSlotBadge');
+
+            addBadge.textContent = `추가 슬롯: ${additionalReplays.length}개`;
+            addContainer.innerHTML = '';
+
+            if (additionalReplays.length === 0) {
+                addEmpty.classList.remove('hidden');
+            } else {
+                addEmpty.classList.add('hidden');
+                additionalReplays.forEach((item, index) => {
+                    addContainer.appendChild(createCardElement(item, index + 1, true));
+                });
+            }
+        }
+
+        function createCardElement(item, index, isAdditional) {
+            const card = document.createElement('div');
+            card.className = `p-4 rounded-xl border transition flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${item.watched ? 'bg-roseGold-50/60 border-roseGold-200 opacity-75' : 'bg-white border-roseGold-200 shadow-sm'}`;
+            
+            const extrasHtml = item.extras.length > 0 
+                ? `<div class="flex flex-wrap gap-1 mt-1">${item.extras.map(e => `<span class="px-2 py-0.5 bg-roseGold-100 text-roseGold-700 text-[10px] rounded-full font-medium">${e}</span>`).join('')}</div>`
+                : '';
+
+            card.innerHTML = `
+                <div class="flex items-start gap-3 w-full sm:w-auto">
+                    <input type="checkbox" ${item.watched ? 'checked' : ''} onclick="toggleWatched(${item.id}, ${isAdditional})" 
+                        class="mt-1 w-5 h-5 rounded text-roseGold-500 focus:ring-roseGold-400 cursor-pointer" title="시청 완료 체크">
+                    <div class="space-y-0.5">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-roseGold-500">#${index}</span>
+                            <span class="px-2 py-0.5 bg-roseGold-100 text-roseGold-800 text-xs font-semibold rounded">${item.mode}</span>
+                            <span class="text-xs font-bold text-roseGold-900 ${item.watched ? 'line-through text-gray-400' : ''}">${item.title}</span>
+                        </div>
+                        <div class="text-xs text-roseGold-700">
+                            <strong>코드:</strong> <span class="font-mono bg-roseGold-50 px-1 py-0.5 rounded text-roseGold-900">${item.code}</span> | 
+                            <strong>닉네임:</strong> ${item.nickname} | 
+                            <strong>티어:</strong> ${item.tier}
+                        </div>
+                        ${extrasHtml}
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 self-end sm:self-center">
+                    <span class="text-[11px] text-roseGold-400">${item.date}</span>
+                    <button onclick="deleteReplay(${item.id}, ${isAdditional})" class="text-xs text-red-400 hover:text-red-600 px-2 py-1 rounded transition">삭제</button>
+                </div>
+            `;
+            return card;
+        }
+
+        // 초기 렌더링 실행
+        renderReplays();
+    </script>
+</body>
+</html>
