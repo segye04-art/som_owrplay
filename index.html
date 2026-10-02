@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오버워치 리플 신청소 - 솜하치</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 리디바탕 폰트 적용 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-10-ef@1.0/RIDIBatang.woff.css">
+    <style>
+        body {
+            font-family: 'RIDIBatang', serif;
+            background: linear-gradient(135deg, #fff3f5 0%, #fce4e8 100%);
+            min-height: 100vh;
+            color: #5a4a4b;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid #f3d1d7;
+            box-shadow: 0 8px 24px 0 rgba(199, 123, 133, 0.1);
+        }
+        .rose-button {
+            background: #c77b85;
+            color: white;
+            transition: all 0.2s ease;
+        }
+        .rose-button:hover {
+            background: #b56a74;
+            transform: translateY(-1px);
+        }
+        /* 최고의 리플 혜택 부드러운 글로우 애니메이션 */
+        @keyframes soft-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(199, 123, 133, 0.3); border-color: #f3d1d7; }
+            50% { box-shadow: 0 0 15px rgba(199, 123, 133, 0.7); border-color: #c77b85; }
+        }
+        .animate-glow {
+            animation: soft-glow 2.5s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="py-10 px-4">
+    <div class="max-w-2xl mx-auto space-y-6">
+        
+        <!-- 타이틀 & 안내 배너 -->
+        <div class="glass-card rounded-2xl p-6 md:p-8 space-y-5 relative">
+            <!-- 관리자 모드 토글 버튼 -->
+            <div class="absolute top-6 right-6">
+                <button type="button" id="admin-toggle-btn" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-xl font-bold transition border border-gray-200 shadow-xs">
+                    관리자 모드: OFF
+                </button>
+            </div>
+
+            <div class="text-center space-y-1.5 pt-2">
+                <p class="text-xs font-bold text-[#c77b85] tracking-widest uppercase">SOMHACHI REPLAY PORTAL</p>
+                <h1 class="text-2xl md:text-3xl font-bold text-[#4a3f41]">오버워치 리플 신청소</h1>
+                <p class="text-sm text-gray-500">여러분들이 자랑하고 싶은 플레이를 보여주세요</p>
+            </div>
+            
+            <!-- 공지사항 -->
+            <div class="bg-[#fff8f9] border border-[#f3d1d7] rounded-xl p-4 space-y-3 text-sm">
+                
+                <!-- ⭐ 최고의 리플 혜택 강조 배너 (애니메이션 적용) -->
+                <div class="bg-gradient-to-r from-[#fff0f3] via-[#fce4e8] to-[#fff0f3] border-2 rounded-xl p-3.5 text-center shadow-xs animate-glow relative overflow-hidden">
+                    <span class="absolute -right-4 -bottom-4 text-3xl opacity-15">👑</span>
+                    <p class="text-xs md:text-sm font-bold text-[#9c535e] flex items-center justify-center gap-1.5">
+                        <span class="text-base animate-bounce">👑</span> 
+                        <span>[최고의 리플 선정 혜택] 다음 방송 때 <span class="text-[#b56a74] underline font-extrabold">우선 시청권 자동 사용</span> 가능!</span>
+                    </p>
+                </div>
+
+                <p class="font-bold text-[#9c535e] pb-1 border-b border-[#f3d1d7] pt-1">이용 안내</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs text-gray-600">
+                    <div class="bg-white p-2.5 rounded-lg border border-[#fce1e6]">
+                        <span class="font-bold text-[#c77b85]">신청 한도:</span> 1인당 최대 2개
+                    </div>
+                    <div class="bg-white p-2.5 rounded-lg border border-[#fce1e6]">
+                        <span class="font-bold text-[#c77b85]">마감 시간:</span> 매주 월요일 오후 7시
+                    </div>
+                    <div class="bg-white p-2.5 rounded-lg border border-[#fce1e6]">
+                        <span class="font-bold text-[#c77b85]">팔로우 혜택:</span> 무료 신청권 1장 지급
+                    </div>
+                    <div class="bg-white p-2.5 rounded-lg border border-[#fce1e6]">
+                        <span class="font-bold text-[#c77b85]">구독자 혜택:</span> 추가 리플권 사용 가능
+                    </div>
+                </div>
+
+                <div class="text-xs text-gray-500 space-y-1 pt-1">
+                    <p>• 추가 신청 기준: 2,000 치즈 이상 후원 또는 추가 리플권 사용</p>
+                    <p>• 경쟁전 신청 시 티어 필수 선택 (티어 맞추기는 "티맞" 체크)</p>
+                    <p>• 등록한 리플은 비밀번호(4자리)를 통해 언제든 수정 및 삭제가 가능합니다.</p>
+                </div>
+            </div>
+            
+            <!-- 슬롯 현황 & 전체 초기화 버튼 (관리자 전용) -->
+            <div class="flex justify-between items-center px-4 py-2.5 bg-white rounded-xl border border-[#f3d1d7] text-sm font-medium">
+                <span class="text-gray-600">일반 슬롯 접수 현황</span>
+                <div class="flex items-center gap-3">
+                    <button type="button" id="reset-all-btn" class="hidden text-xs bg-red-50 hover:bg-red-100 text-red-600 px-2.5 py-1 rounded-lg font-bold transition border border-red-200 shadow-xs">
+                        전체 리플 초기화
+                    </button>
+                    <span class="bg-[#fce4e8] text-[#9c535e] px-3 py-1 rounded-lg font-bold"><span id="current-count">0</span> / 12 슬롯</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 신청 / 수정 폼 -->
+        <div class="glass-card rounded-2xl p-6 md:p-8">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-[#f3d1d7]">
+                <h2 id="form-title" class="text-lg font-bold text-[#4a3f41]">리플 신청서 작성</h2>
+                <button type="button" id="cancel-edit-btn" class="hidden text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-2.5 py-1 rounded-lg font-bold transition">수정 취소</button>
+            </div>
+
+            <form id="replay-form" class="space-y-4">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-[#9c535e] mb-1">신청 구분</label>
+                        <select id="request-type" class="w-full px-3.5 py-2 rounded-xl border border-[#f3d1d7] focus:outline-none focus:border-[#c77b85] bg-white text-sm font-bold text-[#4a3f41]">
+                            <option value="일반">일반 신청</option>
+                            <option value="추가">추가 신청 (치즈 또는 추가 리플권)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-[#9c535e] mb-1">치지직 닉네임 및 게임 닉네임</label>
+                        <input type="text" id="nickname" required class="w-full px-3.5 py-2 rounded-xl border border-[#f3d1d7] focus:outline-none focus:border-[#c77b85] bg-white text-sm" placeholder="치지직 / 게임 닉네임 입력">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-[#9c535e] mb-1">리플 코드</label>
+                        <input type="text" id="replay-code" required class="w-full px-3.5 py-2 rounded-xl border border-[#f3d1d7] focus:outline-none focus:border-[#c77b85] bg-white text-sm font-mono" placeholder="영문/숫자 코드 입력">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-[#9c535e] mb-1">비밀번호 (수정/삭제용 숫자 4자리)</label>
+                        <input type="password" id="replay-password" required maxlength="4" class="w-full px-3.5 py-2 rounded-xl border border-[#f3d1d7] focus:outline-none focus:border-[#c77b85] bg-white text-sm font-mono" placeholder="예: 1234">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-[#9c535e] mb-1">게임 모드</label>
+                        <select id="game-mode" class="w-full px-3.5 py-2 rounded-xl border border-[#f3d1d7] focus:outline-none focus:border-[#c77b85] bg-white text-sm">
+                            <option value="경쟁전">경쟁전</option>
+                            <option value="빠른대전">빠른대전 (빠대)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-[#9c535e] mb-1">후원 치즈</label>
+                        <input type="number" id="cheeze" min="0" value="0" class="w-full px-3.5 py-2 rounded-xl border border-[#f3d1d7] focus:outline-none focus:border-[#c77b85] bg-white text-sm" placeholder="0">
+                        <span class="text-[11px] text-gray-400 mt-1 block">추가 신청 시 2,000 치즈 이상</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-xs font-bold text-[#9c535e]">티어 선택</label>
+                            <label class="flex items-center gap-1 cursor-pointer text-xs font-bold text-[#9c535e]">
+                                <input type="checkbox" id="ti-mat-check" class="w-3.5 h-3.5 accent-[#c77b85]">
+                                티맞 (티어 맞추기)
+                            </label>
+                        </div>
+                        <select id="tier-select" class="w-full px-3.5 py-2 rounded-xl border border-[#f3d1d7] focus:outline-none focus:border-[#c77b85] bg-white text-sm">
+                            <option value="">티어 선택 (경쟁전 시 필수)</option>
+                            <option value="브론즈">브론즈</option>
+                            <option value="실버">실버</option>
+                            <option value="골드">골드</option>
+                            <option value="플레">플레</option>
+                            <option value="에메">에메</option>
+                            <option value="다이아">다이아</option>
+                            <option value="마스터">마스터</option>
+                            <option value="그마">그마</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-[#9c535e] mb-1">제목 (선택)</label>
+                        <input type="text" id="title" class="w-full px-3.5 py-2 rounded-xl border border-[#f3d1d7] focus:outline-none focus:border-[#c77b85] bg-white text-sm mt-5" placeholder="예: 힐러 차이 심했던 판 피드백 부탁드려요">
+                    </div>
+                </div>
+
+                <!-- 혜택 체크박스 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                    <label class="flex items-center gap-2.5 cursor-pointer bg-[#fff8f9] p-3 rounded-xl border border-[#f3d1d7] text-xs font-medium">
+                        <input type="checkbox" id="is-following" class="w-4 h-4 accent-[#c77b85]">
+                        <span>채널 팔로우 완료 (무료 신청권 적용)</span>
+                    </label>
+                    <label class="flex items-center gap-2.5 cursor-pointer bg-[#fff8f9] p-3 rounded-xl border border-[#f3d1d7] text-xs font-medium">
+                        <input type="checkbox" id="use-extra-ticket" class="w-4 h-4 accent-[#c77b85]">
+                        <span>추가 리플권 사용 (구독자 혜택)</span>
+                    </label>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-[#9c535e] mb-1">하고 싶은 말 / 피드백 포인트</label>
+                    <textarea id="comment" rows="2" class="w-full px-3.5 py-2 rounded-xl border border-[#f3d1d7] focus:outline-none focus:border-[#c77b85] bg-white text-sm" placeholder="궁금한 점을 간단히 적어주세요"></textarea>
+                </div>
+
+                <button type="submit" id="submit-btn" class="w-full py-3 rounded-xl rose-button font-bold text-sm shadow-sm">
+                    리플 신청 제출하기
+                </button>
+            </form>
+        </div>
+
+        <!-- 일반 리플 코드 보관함 -->
+        <div class="glass-card rounded-2xl p-6 md:p-8">
+            <h2 class="text-lg font-bold text-[#4a3f41] mb-4 pb-2 border-b border-[#f3d1d7]">일반 리플 코드 보관함</h2>
+            <div id="general-list" class="space-y-3">
+                <p class="text-xs text-gray-400 text-center py-6">불러오는 중...</p>
+            </div>
+        </div>
+
+        <!-- 추가 리플 코드 보관함 -->
+        <div class="glass-card rounded-2xl p-6 md:p-8">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-[#f3d1d7]">
+                <h2 class="text-lg font-bold text-[#4a3f41]">추가 리플 코드 보관함</h2>
+                <span class="text-xs text-gray-400">2,000 치즈 이상 또는 추가 리플권</span>
+            </div>
+            <div id="additional-list" class="space-y-3">
+                <p class="text-xs text-gray-400 text-center py-6">불러오는 중...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase SDK 연동 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCX56MHaSvyRzQrc0FXV3tg6qPP6XxmQaA",
+            authDomain: "somhachi-ac232.firebaseapp.com",
+            projectId: "somhachi-ac232",
+            storageBucket: "somhachi-ac232.firebasestorage.app",
+            messagingSenderId: "344363373779",
+            appId: "1:344363373779:web:8f396e63c318d463473026",
+            measurementId: "G-H2NGZH6DGH"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const MAX_SLOTS = 12;
+        let isAdminMode = false;
+        let editingDocId = null;
+
+        const adminToggleBtn = document.getElementById('admin-toggle-btn');
+        const resetAllBtn = document.getElementById('reset-all-btn');
+        const tiMatCheck = document.getElementById('ti-mat-check');
+        const tierSelect = document.getElementById('tier-select');
+        const formTitle = document.getElementById('form-title');
+        const submitBtn = document.getElementById('submit-btn');
+        const cancelEditBtn = document.getElementById('cancel-edit-btn');
+
+        // 관리자 모드 토글
+        adminToggleBtn.addEventListener('click', () => {
+            isAdminMode = !isAdminMode;
+            if (isAdminMode) {
+                adminToggleBtn.textContent = '관리자 모드: ON';
+                adminToggleBtn.className = 'text-xs bg-[#c77b85] text-white px-3 py-1.5 rounded-xl font-bold transition shadow-sm';
+                resetAllBtn.classList.remove('hidden');
+            } else {
+                adminToggleBtn.textContent = '관리자 모드: OFF';
+                adminToggleBtn.className = 'text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-xl font-bold transition border border-gray-200 shadow-xs';
+                resetAllBtn.classList.add('hidden');
+            }
+            fetchReplays();
+        });
+
+        tiMatCheck.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                tierSelect.value = "";
+                tierSelect.disabled = true;
+                tierSelect.classList.add('bg-gray-100', 'text-gray-400');
+            } else {
+                tierSelect.disabled = false;
+                tierSelect.classList.remove('bg-gray-100', 'text-gray-400');
+            }
+        });
+
+        async function fetchReplays() {
+            const generalListContainer = document.getElementById('general-list');
+            const additionalListContainer = document.getElementById('additional-list');
+            const currentCountEl = document.getElementById('current-count');
+
+            generalListContainer.innerHTML = '<p class="text-xs text-gray-400 text-center py-6">불러오는 중...</p>';
+            additionalListContainer.innerHTML = '<p class="text-xs text-gray-400 text-center py-6">불러오는 중...</p>';
+
+            try {
+                const q = query(collection(db, "replays"), orderBy("createdAt", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                generalListContainer.innerHTML = '';
+                additionalListContainer.innerHTML = '';
+                
+                let generalCount = 0;
+                let additionalCount = 0;
+
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const docId = docSnap.id;
+                    const isAdditional = data.requestType === '추가' || parseInt(data.cheeze) >= 2000 || data.useExtraTicket;
+                    const isWatched = data.isWatched || false;
+
+                    if (isAdditional) {
+                        additionalCount++;
+                    } else {
+                        generalCount++;
+                    }
+
+                    const item = document.createElement('div');
+                    item.className = `p-3.5 rounded-xl border transition flex flex-col md:flex-row justify-between items-start md:items-center gap-3 text-sm ${
+                        isWatched ? 'bg-gray-50 border-gray-200 opacity-60' : 'bg-white border-[#f3d1d7] shadow-xs'
+                    }`;
+                    
+                    const tierBadge = data.isTiMat ? '<span class="text-[11px] bg-purple-50 text-purple-600 px-2 py-0.5 rounded font-bold">티맞</span>' : `<span class="text-[11px] bg-[#fce4e8] text-[#9c535e] px-2 py-0.5 rounded font-bold">${data.tier}</span>`;
+                    
+                    item.innerHTML = `
+                        <div class="space-y-1 flex-1">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-bold text-[#9c535e]">#${isAdditional ? additionalCount : generalCount} ${data.nickname}</span>
+                                <span class="text-[11px] bg-gray-50 text-gray-600 px-2 py-0.5 rounded border border-gray-200 font-medium">${data.gameMode}</span>
+                                ${tierBadge}
+                                ${parseInt(data.cheeze) > 0 ? `<span class="text-[11px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded font-bold">치즈 ${data.cheeze}</span>` : ''}
+                                ${data.useExtraTicket ? '<span class="text-[11px] bg-[#fce4e8] text-[#9c535e] px-2 py-0.5 rounded font-bold">추가리플권</span>' : ''}
+                                ${data.isFollowing ? '<span class="text-[11px] bg-pink-50 text-pink-600 px-2 py-0.5 rounded">팔로우</span>' : ''}
+                            </div>
+                            ${data.title ? `<p class="text-xs font-bold ${isWatched ? 'line-through text-gray-400' : 'text-gray-800'}">${data.title}</p>` : ''}
+                            <div class="flex items-center gap-2 flex-wrap pt-0.5">
+                                <span class="text-xs text-gray-500">코드: <code class="bg-gray-100 px-1.5 py-0.5 rounded font-mono text-gray-700 font-bold">${data.replayCode}</code></span>
+                                <button type="button" class="copy-btn bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-0.5 rounded text-xs transition font-bold" data-code="${data.replayCode}">
+                                    복사
+                                </button>
+                            </div>
+                            ${data.comment ? `<p class="text-xs text-gray-500 italic">"${data.comment}"</p>` : ''}
+                        </div>
+                        <div class="flex items-center gap-2.5 self-end md:self-center flex-wrap">
+                            <label class="flex items-center gap-1.5 cursor-pointer bg-[#fff8f9] px-2.5 py-1 rounded-lg border border-[#f3d1d7] text-xs font-medium text-[#9c535e]">
+                                <input type="checkbox" class="watched-checkbox w-3.5 h-3.5 accent-[#c77b85]" data-id="${docId}" ${isWatched ? 'checked' : ''}>
+                                시청 완료
+                            </label>
+                            <button type="button" class="edit-btn bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1 rounded-lg text-xs font-bold transition" data-id="${docId}">
+                                수정
+                            </button>
+                            <button type="button" class="delete-btn bg-red-50 hover:bg-red-100 text-red-600 px-2.5 py-1 rounded-lg text-xs font-bold transition border border-red-200" data-id="${docId}">
+                                삭제
+                            </button>
+                            <span class="text-[11px] text-gray-400 ml-1">${data.createdAt ? new Date(data.createdAt.toDate()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '방금 전'}</span>
+                        </div>
+                    `;
+
+                    if (isAdditional) {
+                        additionalListContainer.appendChild(item);
+                    } else {
+                        generalListContainer.appendChild(item);
+                    }
+                });
+
+                currentCountEl.textContent = generalCount;
+
+                if (generalCount === 0) {
+                    generalListContainer.innerHTML = '<p class="text-xs text-gray-400 text-center py-6">일반 신청된 리플이 없습니다.</p>';
+                }
+                if (additionalCount === 0) {
+                    additionalListContainer.innerHTML = '<p class="text-xs text-gray-400 text-center py-6">추가 신청된 리플이 없습니다.</p>';
+                }
+
+                // 복사 버튼 이벤트 (시각적 피드백)
+                document.querySelectorAll('.copy-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const code = e.currentTarget.getAttribute('data-code');
+                        const btnEl = e.currentTarget;
+                        navigator.clipboard.writeText(code).then(() => {
+                            const originalText = btnEl.textContent;
+                            btnEl.textContent = '복사됨!';
+                            btnEl.classList.add('bg-pink-100', 'text-pink-700');
+                            setTimeout(() => {
+                                btnEl.textContent = originalText;
+                                btnEl.classList.remove('bg-pink-100', 'text-pink-700');
+                            }, 1500);
+                        }).catch(err => {
+                            console.error('복사 실패:', err);
+                        });
+                    });
+                });
+
+                // 시청 완료 체크박스 이벤트
+                document.querySelectorAll('.watched-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', async (e) => {
+                        const docId = e.target.getAttribute('data-id');
+                        const isChecked = e.target.checked;
+
+                        try {
+                            const docRef = doc(db, "replays", docId);
+                            await updateDoc(docRef, { isWatched: isChecked });
+                            fetchReplays();
+                        } catch (error) {
+                            console.error("상태 업데이트 오류: ", error);
+                        }
+                    });
+                });
+
+                // 수정 버튼 이벤트 (비밀번호 확인 또는 관리자 모드)
+                document.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const docId = e.target.getAttribute('data-id');
+                        const querySnapshot = await getDocs(query(collection(db, "replays")));
+                        let targetData = null;
+                        
+                        querySnapshot.forEach(d => {
+                            if (d.id === docId) targetData = d.data();
+                        });
+
+                        if (!targetData) return;
+
+                        if (!isAdminMode) {
+                            const inputPw = prompt('등록할 때 입력한 비밀번호(4자리)를 입력해주세요.');
+                            if (inputPw !== targetData.password) {
+                                alert('비밀번호가 일치하지 않습니다.');
+                                return;
+                            }
+                        }
+
+                        editingDocId = docId;
+                        document.getElementById('request-type').value = targetData.requestType;
+                        document.getElementById('nickname').value = targetData.nickname;
+                        document.getElementById('replay-code').value = targetData.replayCode;
+                        document.getElementById('replay-password').value = targetData.password;
+                        document.getElementById('game-mode').value = targetData.gameMode;
+                        document.getElementById('ti-mat-check').checked = targetData.isTiMat;
+                        
+                        if (targetData.isTiMat) {
+                            tierSelect.value = "";
+                            tierSelect.disabled = true;
+                            tierSelect.classList.add('bg-gray-100', 'text-gray-400');
+                        } else {
+                            tierSelect.disabled = false;
+                            tierSelect.classList.remove('bg-gray-100', 'text-gray-400');
+                            tierSelect.value = targetData.tier;
+                        }
+
+                        document.getElementById('title').value = targetData.title || '';
+                        document.getElementById('cheeze').value = targetData.cheeze || 0;
+                        document.getElementById('is-following').checked = targetData.isFollowing || false;
+                        document.getElementById('use-extra-ticket').checked = targetData.useExtraTicket || false;
+                        document.getElementById('comment').value = targetData.comment || '';
+
+                        formTitle.textContent = '리플 신청서 수정하기';
+                        submitBtn.textContent = '리플 수정 완료하기';
+                        cancelEditBtn.classList.remove('hidden');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                });
+
+                // 삭제 버튼 이벤트 (비밀번호 확인 또는 관리자 모드)
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const docId = e.target.getAttribute('data-id');
+                        const querySnapshot = await getDocs(query(collection(db, "replays")));
+                        let targetData = null;
+                        
+                        querySnapshot.forEach(d => {
+                            if (d.id === docId) targetData = d.data();
+                        });
+
+                        if (!targetData) return;
+
+                        if (!isAdminMode) {
+                            const inputPw = prompt('삭제하려면 등록 시 입력한 비밀번호(4자리)를 입력해주세요.');
+                            if (inputPw !== targetData.password) {
+                                alert('비밀번호가 일치하지 않습니다.');
+                                return;
+                            }
+                        }
+
+                        if (confirm('해당 리플을 삭제하시겠습니까?')) {
+                            try {
+                                await deleteDoc(doc(db, "replays", docId));
+                                fetchReplays();
+                            } catch (error) {
+                                console.error("삭제 오류:", error);
+                                alert('삭제 중 오류가 발생했습니다.');
+                            }
+                        }
+                    });
+                });
+
+            } catch (error) {
+                console.error("데이터 로드 오류: ", error);
+                generalListContainer.innerHTML = '<p class="text-xs text-red-400 text-center py-6">데이터를 불러오지 못했습니다.</p>';
+                additionalListContainer.innerHTML = '<p class="text-xs text-red-400 text-center py-6">데이터를 불러오지 못했습니다.</p>';
+            }
+        }
+
+        // 수정 취소 버튼
+        cancelEditBtn.addEventListener('click', () => {
+            editingDocId = null;
+            document.getElementById('replay-form').reset();
+            tierSelect.disabled = false;
+            tierSelect.classList.remove('bg-gray-100', 'text-gray-400');
+            formTitle.textContent = '리플 신청서 작성';
+            submitBtn.textContent = '리플 신청 제출하기';
+            cancelEditBtn.classList.add('hidden');
+        });
+
+        // 전체 리플 초기화 버튼 (관리자 전용)
+        resetAllBtn.addEventListener('click', async () => {
+            if (confirm('경고: 등록된 모든 리플이 삭제됩니다. 정말 초기화하시겠습니까?')) {
+                try {
+                    const querySnapshot = await getDocs(collection(db, "replays"));
+                    const deletePromises = querySnapshot.docs.map(docSnap => deleteDoc(doc(db, "replays", docSnap.id)));
+                    await Promise.all(deletePromises);
+                    alert('모든 리플이 초기화되었습니다.');
+                    fetchReplays();
+                } catch (error) {
+                    console.error("초기화 오류:", error);
+                    alert('초기화 중 오류가 발생했습니다.');
+                }
+            }
+        });
+
+        // 리플 신청 / 수정 폼 제출
+        document.getElementById('replay-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const requestType = document.getElementById('request-type').value;
+            const nickname = document.getElementById('nickname').value;
+            const replayCode = document.getElementById('replay-code').value;
+            const password = document.getElementById('replay-password').value;
+            const gameMode = document.getElementById('game-mode').value;
+            const isTiMat = tiMatCheck.checked;
+            const tier = tierSelect.value;
+            const title = document.getElementById('title').value;
+            const cheeze = parseInt(document.getElementById('cheeze').value) || 0;
+            const isFollowing = document.getElementById('is-following').checked;
+            const useExtraTicket = document.getElementById('use-extra-ticket').checked;
+            const comment = document.getElementById('comment').value;
+
+            if (gameMode === '경쟁전' && !isTiMat && !tier) {
+                alert('경쟁전은 티어를 선택해 주시거나 "티맞"을 체크해 주세요.');
+                tierSelect.focus();
+                return;
+            }
+
+            if (password.length !== 4) {
+                alert('비밀번호는 숫자 4자리로 입력해 주세요.');
+                return;
+            }
+
+            try {
+                if (editingDocId) {
+                    const docRef = doc(db, "replays", editingDocId);
+                    await updateDoc(docRef, {
+                        requestType: (useExtraTicket ? '추가' : requestType),
+                        nickname,
+                        replayCode,
+                        password,
+                        gameMode,
+                        isTiMat,
+                        tier: isTiMat ? '티맞' : tier,
+                        title,
+                        cheeze,
+                        isFollowing,
+                        useExtraTicket,
+                        comment
+                    });
+
+                    alert('리플 신청서가 수정되었습니다.');
+                    cancelEditBtn.click();
+                } else {
+                    const currentCount = parseInt(document.getElementById('current-count').textContent);
+                    if (requestType === '일반' && currentCount >= MAX_SLOTS && !useExtraTicket) {
+                        alert('일반 슬롯(12개)이 마감되었습니다. 추가 신청 또는 추가 리플권을 이용해 주세요.');
+                        return;
+                    }
+
+                    await addDoc(collection(db, "replays"), {
+                        requestType: (useExtraTicket ? '추가' : requestType),
+                        nickname,
+                        replayCode,
+                        password,
+                        gameMode,
+                        isTiMat,
+                        tier: isTiMat ? '티맞' : tier,
+                        title,
+                        cheeze,
+                        isFollowing,
+                        useExtraTicket,
+                        isWatched: false,
+                        comment,
+                        createdAt: serverTimestamp()
+                    });
+
+                    alert('리플 신청이 완료되었습니다.');
+                    document.getElementById('replay-form').reset();
+                    tierSelect.disabled = false;
+                    tierSelect.classList.remove('bg-gray-100', 'text-gray-400');
+                }
+                
+                fetchReplays();
+            } catch (error) {
+                console.error("저장 오류: ", error);
+                alert('처리 중 오류가 발생했습니다.');
+            }
+        });
+
+        fetchReplays();
+    </script>
+</body>
+</html>
