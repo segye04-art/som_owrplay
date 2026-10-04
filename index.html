@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OW2 리플 코드 신청소</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Pretendard Font -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #313338;
+            color: #dbdee1;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2b2d31;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1a1b1e;
+            border-radius: 4px;
+        }
+        .discord-card {
+            background-color: #2b2d31;
+            border: 1px solid #1f2023;
+        }
+        /* 디스코드 스타일 부드러운 전환 애니메이션 */
+        .discord-transition {
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .modal-backdrop {
+            transition: opacity 0.2s ease-in-out;
+        }
+        .modal-content {
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-[#313338] text-[#dbdee1] min-h-screen flex flex-col items-center pb-16 selection:bg-[#5865F2] selection:text-white">
+
+    <!-- 디스코드 채널 헤더 -->
+    <header class="w-full max-w-md bg-[#2b2d31] border-b border-[#1f2023] px-4 py-3 sticky top-0 z-50 flex items-center justify-between shadow-sm">
+        <div class="flex items-center space-x-2">
+            <span class="text-[#80848e] text-lg font-bold">#</span>
+            <h1 class="text-white font-bold text-sm tracking-tight">ow2-리플-신청소</h1>
+            <span class="bg-[#248046]/20 text-[#23a55a] text-[10px] font-semibold px-1.5 py-0.5 rounded flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#23a55a] animate-pulse"></span> LIVE
+            </span>
+        </div>
+        <div class="flex items-center space-x-2">
+            <!-- 관리자 모드 토글 버튼 -->
+            <button id="adminToggleBtn" class="text-[10px] bg-[#3f4147] text-[#b5bac1] hover:text-white px-2 py-1 rounded discord-transition active:scale-95 flex items-center gap-1 font-medium">
+                <span>🔒 관리자: OFF</span>
+            </button>
+            <span id="slot-counter" class="bg-[#35363c] text-[#dbdee1] text-xs font-semibold px-2 py-1 rounded-md flex items-center gap-1 border border-[#1f2023]">
+                슬롯 <span id="current-slots" class="text-white font-bold">1</span>/12
+            </span>
+        </div>
+    </header>
+
+    <!-- 메인 컨테이너 -->
+    <main class="w-full max-w-md px-4 mt-4 space-y-4">
+
+        <!-- 타이틀 배너 -->
+        <div class="discord-card rounded-lg p-4 text-center space-y-1 shadow-md discord-transition hover:border-[#3f4147]">
+            <h2 class="text-white font-bold text-sm tracking-wide flex items-center justify-center gap-1.5">
+                <span>🎮</span> 솜하치 오버워치 리플 코드 신청소
+            </h2>
+            <p class="text-xs text-[#949ba4]">소중한 여러분의 플레이를 공유해주세요!</p>
+        </div>
+
+        <!-- 📌 신청 핵심 안내 -->
+        <section class="discord-card border-l-4 border-[#5865F2] rounded-r-lg p-4 shadow-md space-y-3 discord-transition hover:border-l-[#4752C4]">
+            <div class="flex items-center space-x-2 text-white font-bold text-sm">
+                <span>📌 신청 핵심 안내</span>
+            </div>
+            <div class="text-xs space-y-2 text-[#949ba4] leading-relaxed">
+                <p class="flex items-center gap-1.5">• <strong class="text-[#dbdee1]">1인당 최대 2개까지</strong> 신청 가능</p>
+                <p class="flex items-center gap-1.5 text-[#23a55a] font-medium">└ 🌸 팔로우 유입 시 무료 신청권 1장 지급!</p>
+                <p class="flex items-center gap-1.5">• 기본 최대 리플 슬롯: <span class="text-white font-bold">1 / 12개</span></p>
+                <p class="flex items-center gap-1.5">• 추가 신청은 <span class="text-[#f0b232] font-semibold">2,000 치즈 이상</span>부터 가능</p>
+                <hr class="border-[#3f4147] my-1">
+                <p class="flex items-center gap-1.5 text-[#f0b232] font-medium">
+                    ⭐ 최고의 리플 선정 시 다음 리플 시간에 <span class="underline">우선 시청권 획득 (자동 사용)</span>
+                </p>
+                <p class="flex items-center gap-1.5 text-[#eb459e]">
+                    ⏰ 마감: 매주 월요일 오후 7시 (리플데이에만 가능)
+                </p>
+            </div>
+        </section>
+
+        <!-- 📝 신청 양식 폼 -->
+        <section class="discord-card rounded-lg p-4 shadow-md space-y-4">
+            <div class="border-b border-[#3f4147] pb-2 flex items-center justify-between">
+                <h3 class="text-white font-bold text-xs flex items-center gap-1.5 uppercase tracking-wider">
+                    <span>📝 리플 코드 신청서 작성</span>
+                </h3>
+                <span class="text-[11px] text-[#949ba4]">필수항목 (*)</span>
+            </div>
+
+            <form id="replayForm" class="space-y-4">
+                
+                <!-- 닉네임 -->
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-[#b5bac1]">닉네임 <span class="text-[#f23f43]">*</span></label>
+                    <input type="text" id="nickname" required placeholder="오버워치 닉네임#1234" 
+                        class="w-full bg-[#1e1f22] text-white text-sm rounded-md px-3 py-2.5 outline-none border border-[#1f2023] focus:border-[#5865F2] discord-transition placeholder:text-[#57606f]">
+                </div>
+
+                <!-- 리플 코드 -->
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-[#b5bac1]">리플 코드 <span class="text-[#f23f43]">*</span></label>
+                    <input type="text" id="replayCode" required maxlength="6" placeholder="영문/숫자 5~6자리 (예: A1B2C3)" 
+                        class="w-full bg-[#1e1f22] text-white text-sm rounded-md px-3 py-2.5 uppercase tracking-widest font-mono outline-none border border-[#1f2023] focus:border-[#5865F2] discord-transition placeholder:text-[#57606f] placeholder:tracking-normal placeholder:font-sans">
+                </div>
+
+                <!-- 매치 유형 -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-[#b5bac1]">매치 유형 <span class="text-[#f23f43]">*</span></label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="matchType" value="경쟁전" checked class="peer sr-only">
+                            <div class="text-center py-2.5 rounded-md bg-[#1e1f22] border border-[#1f2023] text-xs font-medium text-[#b5bac1] peer-checked:bg-[#5865F2] peer-checked:text-white peer-checked:font-bold peer-checked:border-[#5865F2] discord-transition shadow-sm">
+                                ⚔️ 경쟁전
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="matchType" value="빠른대전" class="peer sr-only">
+                            <div class="text-center py-2.5 rounded-md bg-[#1e1f22] border border-[#1f2023] text-xs font-medium text-[#b5bac1] peer-checked:bg-[#5865F2] peer-checked:text-white peer-checked:font-bold peer-checked:border-[#5865F2] discord-transition shadow-sm">
+                                ⚡ 빠른대전
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 티어 및 티맞 옵션 영역 -->
+                <div id="tier-section" class="space-y-2.5 bg-[#232428] p-3 rounded-md border border-[#1f2023] discord-transition">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-xs font-bold text-[#b5bac1]">경쟁전 티어</label>
+                        <label class="flex items-center space-x-1.5 cursor-pointer select-none">
+                            <input type="checkbox" id="tierMatchCheck" class="w-4 h-4 accent-[#5865F2] rounded bg-[#1e1f22] border-[#3f4147] cursor-pointer">
+                            <span class="text-xs text-[#eb459e] font-semibold">✔ 티맞 (티어 맞춤)</span>
+                        </label>
+                    </div>
+
+                    <select id="tierSelect" class="w-full bg-[#1e1f22] text-white text-sm rounded-md px-3 py-2.5 outline-none border border-[#1f2023] focus:border-[#5865F2] discord-transition">
+                        <option value="브론즈">🥉 브론즈</option>
+                        <option value="실버">🥈 실버</option>
+                        <option value="골드" selected>🥇 골드</option>
+                        <option value="플레티넘">💎 플레티넘 (플레)</option>
+                        <option value="에메랄드">🟢 에메랄드 (에메)</option>
+                        <option value="다이아몬드">💠 다이아몬드 (다이아)</option>
+                        <option value="마스터">👑 마스터</option>
+                        <option value="그랜드마스터">🌟 그랜드마스터</option>
+                    </select>
+                </div>
+
+                <!-- 제목 (선택) -->
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-[#b5bac1]">제목 (선택)</label>
+                    <input type="text" id="replayTitle" placeholder="예: 구도가 너무 빡빡했던 한타 캐리" 
+                        class="w-full bg-[#1e1f22] text-white text-sm rounded-md px-3 py-2.5 outline-none border border-[#1f2023] focus:border-[#5865F2] discord-transition placeholder:text-[#57606f]">
+                </div>
+
+                <!-- 🎁 추가 선택칸 -->
+                <div class="space-y-2 pt-1 border-t border-[#3f4147] pt-3">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-xs font-bold text-[#b5bac1] uppercase tracking-wider flex items-center gap-1">
+                            <span>🎁 추가 선택칸</span>
+                        </label>
+                        <span class="text-[10px] text-[#949ba4]">(선택 시 아래 추가 보관바로 이동)</span>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="flex items-center justify-between text-xs bg-[#1e1f22] hover:bg-[#35363c] p-2.5 rounded-md border border-[#1f2023] cursor-pointer discord-transition select-none">
+                            <span class="text-[#b5bac1] flex items-center gap-1.5 font-medium">🩷 구독자 혜택</span>
+                            <input type="checkbox" id="subBenefit" class="extra-scroll-trigger w-4 h-4 accent-[#5865F2] rounded cursor-pointer">
+                        </label>
+                        <label class="flex items-center justify-between text-xs bg-[#1e1f22] hover:bg-[#35363c] p-2.5 rounded-md border border-[#1f2023] cursor-pointer discord-transition select-none">
+                            <span class="text-[#b5bac1] flex items-center gap-1.5 font-medium">🌸 팔로우 유입 (무료 신청권)</span>
+                            <input type="checkbox" id="followTicket" class="extra-scroll-trigger w-4 h-4 accent-[#5865F2] rounded cursor-pointer">
+                        </label>
+                        <label class="flex items-center justify-between text-xs bg-[#1e1f22] hover:bg-[#35363c] p-2.5 rounded-md border border-[#1f2023] cursor-pointer discord-transition select-none">
+                            <span class="text-[#b5bac1] flex items-center gap-1.5 font-medium">🧀 추가 신청 (2천치즈+)</span>
+                            <input type="checkbox" id="cheeseSupport" class="extra-scroll-trigger w-4 h-4 accent-[#5865F2] rounded cursor-pointer">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 제출 버튼 -->
+                <div class="pt-2">
+                    <button type="submit" id="submitBtn" class="w-full bg-[#5865F2] hover:bg-[#4752C4] active:scale-[0.98] text-white font-bold py-3 rounded-md discord-transition shadow-md flex items-center justify-center gap-2 text-sm">
+                        <span>📤 리플 코드 신청하기</span>
+                    </button>
+                </div>
+
+                <p class="text-[11px] text-center text-[#949ba4] pt-1">
+                    💗 양식에 맞게 정확히 작성해주세요! 매주 월요일 오후 7시 마감
+                </p>
+            </form>
+        </section>
+
+        <!-- 📦 일반 리플 보관함 -->
+        <section id="generalHistorySection" class="discord-card rounded-lg p-4 shadow-md space-y-3 discord-transition hover:border-[#3f4147]">
+            <div class="flex items-center justify-between border-b border-[#3f4147] pb-2">
+                <h3 class="text-white font-bold text-xs flex items-center gap-1.5 uppercase tracking-wider">
+                    <span>📦 일반 리플 보관함</span>
+                </h3>
+                <span class="text-[10px] text-[#23a55a] font-medium">🟢 실시간 DB</span>
+            </div>
+            <div id="generalHistoryList" class="space-y-2 max-h-56 overflow-y-auto pr-1 text-xs">
+                <p class="text-center text-[#949ba4] py-4">데이터를 불러오는 중...</p>
+            </div>
+        </section>
+
+        <!-- 🌟 추가 리플 보관함 (구독자/팔로우/추가신청 전용) -->
+        <section id="extraHistorySection" class="discord-card rounded-lg p-4 shadow-md space-y-3 border border-[#5865F2]/30 discord-transition hover:border-[#5865F2]/60">
+            <div class="flex items-center justify-between border-b border-[#3f4147] pb-2">
+                <h3 class="text-white font-bold text-xs flex items-center gap-1.5">
+                    <span>🌟 추가 리플 보관함 <span class="text-[#eb459e] font-medium text-[10px]">(구독자/팔로우/추가신청 전용)</span></span>
+                </h3>
+                <div class="flex items-center gap-2">
+                    <button id="clearAllBtn" class="hidden text-[10px] bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-2 py-0.5 rounded discord-transition active:scale-95">
+                        🗑️ 전체 초기화
+                    </button>
+                    <span class="text-[10px] text-[#23a55a] font-medium">✨ 실시간 DB</span>
+                </div>
+            </div>
+            <div id="extraHistoryList" class="space-y-2 max-h-56 overflow-y-auto pr-1 text-xs">
+                <p class="text-center text-[#949ba4] py-4">데이터를 불러오는 중...</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 수정 모달 (부드러운 페이드/스케일 애니메이션 적용) -->
+    <div id="editModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 modal-backdrop p-4">
+        <div class="discord-card w-full max-w-sm rounded-lg p-4 space-y-4 shadow-2xl border border-[#3f4147] transform scale-95 modal-content">
+            <div class="flex items-center justify-between border-b border-[#3f4147] pb-2">
+                <h3 class="text-white font-bold text-sm">📝 내 리플 신청서 수정</h3>
+                <button id="closeEditModal" class="text-[#b5bac1] hover:text-white text-sm discord-transition">✕</button>
+            </div>
+            <form id="editForm" class="space-y-3">
+                <input type="hidden" id="editDocId">
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-[#b5bac1]">닉네임</label>
+                    <input type="text" id="editNickname" required class="w-full bg-[#1e1f22] text-white text-xs rounded-md px-3 py-2.5 outline-none border border-[#1f2023] focus:border-[#5865F2] discord-transition">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-[#b5bac1]">리플 코드</label>
+                    <input type="text" id="editReplayCode" required maxlength="6" class="w-full bg-[#1e1f22] text-white text-xs rounded-md px-3 py-2.5 uppercase font-mono outline-none border border-[#1f2023] focus:border-[#5865F2] discord-transition">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-[#b5bac1]">제목</label>
+                    <input type="text" id="editReplayTitle" class="w-full bg-[#1e1f22] text-white text-xs rounded-md px-3 py-2.5 outline-none border border-[#1f2023] focus:border-[#5865F2] discord-transition">
+                </div>
+                <div class="pt-2 flex gap-2">
+                    <button type="button" id="cancelEditBtn" class="flex-1 bg-[#3f4147] hover:bg-[#4e5058] active:scale-[0.98] text-white text-xs py-2.5 rounded-md font-semibold discord-transition">취소</button>
+                    <button type="submit" class="flex-1 bg-[#5865F2] hover:bg-[#4752C4] active:scale-[0.98] text-white text-xs py-2.5 rounded-md font-bold discord-transition">수정 완료</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 디스코드 스타일 알림 토스트 -->
+    <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 discord-card text-white px-4 py-3 rounded-lg shadow-2xl flex items-center space-x-3 transition-all duration-300 ease-out translate-y-20 opacity-0 z-50 max-w-[90%] border border-[#3f4147]">
+        <span id="toast-icon" class="text-xl">✅</span>
+        <div>
+            <p id="toast-title" class="font-bold text-xs text-white">성공적으로 완료되었습니다!</p>
+            <p id="toast-desc" class="text-[11px] text-[#949ba4]">작업이 정상 처리되었습니다.</p>
+        </div>
+    </div>
+
+    <!-- Firebase SDK & 로직 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCX56MHaSvyRzQrc0FXV3tg6qPP6XxmQaA",
+            authDomain: "somhachi-ac232.firebaseapp.com",
+            projectId: "somhachi-ac232",
+            storageBucket: "somhachi-ac232.firebasestorage.app",
+            messagingSenderId: "344363373779",
+            appId: "1:344363373779:web:8f396e63c318d463473026",
+            measurementId: "G-H2NGZH6DGH"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let isAdminMode = false;
+        let latestData = [];
+
+        const form = document.getElementById('replayForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const matchTypeRadios = document.getElementsByName('matchType');
+        const tierSection = document.getElementById('tier-section');
+        const tierSelect = document.getElementById('tierSelect');
+        const tierMatchCheck = document.getElementById('tierMatchCheck');
+        
+        const generalHistoryList = document.getElementById('generalHistoryList');
+        const extraHistoryList = document.getElementById('extraHistoryList');
+        const extraHistorySection = document.getElementById('extraHistorySection');
+        
+        const currentSlotsEl = document.getElementById('current-slots');
+        const adminToggleBtn = document.getElementById('adminToggleBtn');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const extraScrollTriggers = document.querySelectorAll('.extra-scroll-trigger');
+
+        const editModal = document.getElementById('editModal');
+        const editForm = document.getElementById('editForm');
+        const closeEditModal = document.getElementById('closeEditModal');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+
+        function getMyReplays() {
+            try {
+                return JSON.parse(localStorage.getItem('my_replays') || '[]');
+            } catch {
+                return [];
+            }
+        }
+        function addMyReplay(id) {
+            const list = getMyReplays();
+            if (!list.includes(id)) {
+                list.push(id);
+                localStorage.setItem('my_replays', JSON.stringify(list));
+            }
+        }
+        function removeMyReplayStorage(id) {
+            let list = getMyReplays();
+            list = list.filter(item => item !== id);
+            localStorage.setItem('my_replays', JSON.stringify(list));
+        }
+
+        adminToggleBtn.addEventListener('click', () => {
+            isAdminMode = !isAdminMode;
+            if (isAdminMode) {
+                adminToggleBtn.className = "text-[10px] bg-[#23a55a] text-white px-2 py-1 rounded discord-transition active:scale-95 font-bold shadow";
+                adminToggleBtn.innerHTML = "🔓 관리자: ON";
+                clearAllBtn.classList.remove('hidden');
+                showToast('🔑 관리자 모드 켜짐', '시청 완료 체크 및 전체 초기화가 가능합니다.', 'info');
+            } else {
+                adminToggleBtn.className = "text-[10px] bg-[#3f4147] text-[#b5bac1] hover:text-white px-2 py-1 rounded discord-transition active:scale-95 font-medium";
+                adminToggleBtn.innerHTML = "🔒 관리자: OFF";
+                clearAllBtn.classList.add('hidden');
+                showToast('🔒 관리자 모드 꺼짐', '일반 모드로 전환되었습니다.', 'info');
+            }
+            updateUI(latestData);
+        });
+
+        extraScrollTriggers.forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    extraHistorySection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    extraHistorySection.classList.add('ring-2', 'ring-[#5865F2]');
+                    setTimeout(() => extraHistorySection.classList.remove('ring-2', 'ring-[#5865F2]'), 800);
+                }
+            });
+        });
+
+        matchTypeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === '빠른대전') {
+                    tierSection.style.opacity = '0.4';
+                    tierSelect.disabled = true;
+                    tierMatchCheck.disabled = true;
+                } else {
+                    tierSection.style.opacity = '1';
+                    tierSelect.disabled = false;
+                    tierMatchCheck.disabled = false;
+                }
+            });
+        });
+
+        tierMatchCheck.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                tierSelect.disabled = true;
+                tierSelect.style.opacity = '0.5';
+            } else {
+                tierSelect.disabled = false;
+                tierSelect.style.opacity = '1';
+            }
+        });
+
+        const q = query(collection(db, "replays"), orderBy("createdAt", "desc"));
+        onSnapshot(q, (snapshot) => {
+            latestData = [];
+            snapshot.forEach((doc) => {
+                latestData.push({ id: doc.id, ...doc.data() });
+            });
+            updateUI(latestData);
+        }, (error) => {
+            console.error(error);
+            generalHistoryList.innerHTML = `<p class="text-center text-[#f23f43] py-4">데이터베이스 연결 오류</p>`;
+            extraHistoryList.innerHTML = `<p class="text-center text-[#f23f43] py-4">데이터베이스 연결 오류</p>`;
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nickname = document.getElementById('nickname').value.trim();
+            const replayCode = document.getElementById('replayCode').value.trim().toUpperCase();
+            const matchType = document.querySelector('input[name="matchType"]:checked').value;
+            const isTierMatch = tierMatchCheck.checked;
+            const tier = isTierMatch ? '티어 맞춤 (티맞)' : (matchType === '경쟁전' ? tierSelect.value : '해당 없음');
+            const replayTitle = document.getElementById('replayTitle').value.trim() || '제목 없음';
+            
+            const subBenefit = document.getElementById('subBenefit').checked;
+            const followTicket = document.getElementById('followTicket').checked;
+            const cheeseSupport = document.getElementById('cheeseSupport').checked;
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = "⏳ 전송 중...";
+
+            try {
+                const docRef = await addDoc(collection(db, "replays"), {
+                    nickname,
+                    replayCode,
+                    matchType,
+                    tier,
+                    replayTitle,
+                    subBenefit,
+                    followTicket,
+                    cheeseSupport,
+                    viewed: false,
+                    createdAt: serverTimestamp()
+                });
+
+                addMyReplay(docRef.id);
+
+                form.reset();
+                matchTypeRadios[0].checked = true;
+                tierSection.style.opacity = '1';
+                tierSelect.disabled = false;
+                tierMatchCheck.disabled = false;
+                tierSelect.style.opacity = '1';
+
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.7 },
+                    colors: ['#5865F2', '#eb459e', '#f0b232', '#23a55a']
+                });
+
+                const isExtra = subBenefit || followTicket || cheeseSupport;
+                showToast('✅ 신청 완료!', isExtra ? '추가 리플 보관함에 정상 접수되었습니다.' : '일반 리플 보관함에 정상 접수되었습니다.', 'success');
+                setTimeout(() => {
+                    const targetSection = isExtra ? extraHistorySection : document.getElementById('generalHistorySection');
+                    targetSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 300);
+
+            } catch (err) {
+                console.error(err);
+                showToast('❌ 오류', '저장에 실패했습니다.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "📤 리플 코드 신청하기";
+            }
+        });
+
+        clearAllBtn.addEventListener('click', async () => {
+            if (!confirm('⚠️ 경고: 모든 리플 데이터가 영구 삭제됩니다. 진행하시겠습니까?')) return;
+            try {
+                for (let item of latestData) {
+                    await deleteDoc(doc(db, "replays", item.id));
+                }
+                localStorage.removeItem('my_replays');
+                showToast('🗑️ 초기화 완료', '모든 리플 데이터가 삭제되었습니다.', 'info');
+            } catch (err) {
+                console.error(err);
+                showToast('❌ 오류', '초기화 중 오류가 발생했습니다.', 'error');
+            }
+        });
+
+        window.copyReplayCode = function(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                showToast('📋 코드 복사됨', `리플 코드 [${code}]가 클립보드에 복사되었습니다!`, 'info');
+            }).catch(() => {
+                showToast('❌ 복사 실패', '클립보드 권한을 확인해주세요.', 'error');
+            });
+        }
+
+        window.toggleViewedStatus = async function(id, currentStatus) {
+            if (!isAdminMode) return;
+            try {
+                const docRef = doc(db, "replays", id);
+                await updateDoc(docRef, { viewed: !currentStatus });
+            } catch (err) {
+                console.error(err);
+                showToast('❌ 오류', '상태 변경에 실패했습니다.', 'error');
+            }
+        }
+
+        window.deleteMyReplay = async function(id) {
+            if (!confirm('정말로 이 신청 내역을 삭제하시겠습니까?')) return;
+            try {
+                await deleteDoc(doc(db, "replays", id));
+                removeMyReplayStorage(id);
+                showToast('🗑️ 삭제 완료', '신청 내역이 삭제되었습니다.', 'info');
+            } catch (err) {
+                console.error(err);
+                showToast('❌ 오류', '삭제 중 오류가 발생했습니다.', 'error');
+            }
+        }
+
+        window.openEditModal = async function(id) {
+            try {
+                const docRef = doc(db, "replays", id);
+                const docSnap = await getDoc(docRef);
+                if (!docSnap.exists()) {
+                    showToast('❌ 오류', '해당 데이터를 찾을 수 없습니다.', 'error');
+                    return;
+                }
+                const data = docSnap.data();
+                document.getElementById('editDocId').value = id;
+                document.getElementById('editNickname').value = data.nickname || '';
+                document.getElementById('editReplayCode').value = data.replayCode || '';
+                document.getElementById('editReplayTitle').value = data.replayTitle === '제목 없음' ? '' : (data.replayTitle || '');
+                
+                editModal.classList.remove('hidden');
+                setTimeout(() => {
+                    editModal.classList.remove('opacity-0');
+                    editModal.querySelector('.modal-content').classList.remove('scale-95');
+                }, 10);
+            } catch (err) {
+                console.error(err);
+                showToast('❌ 오류', '데이터를 불러오지 못했습니다.', 'error');
+            }
+        }
+
+        const closeModalFn = () => {
+            editModal.classList.add('opacity-0');
+            editModal.querySelector('.modal-content').classList.add('scale-95');
+            setTimeout(() => {
+                editModal.classList.add('hidden');
+            }, 200);
+        };
+        closeEditModal.addEventListener('click', closeModalFn);
+        cancelEditBtn.addEventListener('click', closeModalFn);
+
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('editDocId').value;
+            const nickname = document.getElementById('editNickname').value.trim();
+            const replayCode = document.getElementById('editReplayCode').value.trim().toUpperCase();
+            const replayTitle = document.getElementById('editReplayTitle').value.trim() || '제목 없음';
+
+            try {
+                const docRef = doc(db, "replays", id);
+                await updateDoc(docRef, {
+                    nickname,
+                    replayCode,
+                    replayTitle
+                });
+                closeModalFn();
+                showToast('✏️ 수정 완료', '신청 내역이 성공적으로 수정되었습니다.', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('❌ 오류', '수정에 실패했습니다.', 'error');
+            }
+        });
+
+        function updateUI(data) {
+            let slotCount = Math.min(1 + data.length, 12);
+            currentSlotsEl.textContent = slotCount;
+
+            const generalData = data.filter(item => !item.subBenefit && !item.followTicket && !item.cheeseSupport);
+            const extraData = data.filter(item => item.subBenefit || item.followTicket || item.cheeseSupport);
+
+            renderList(generalData, generalHistoryList, "일반 신청 내역이 없습니다.");
+            renderList(extraData, extraHistoryList, "추가 신청 내역이 없습니다.");
+        }
+
+        function renderList(listData, containerElement, emptyMessage) {
+            if (listData.length === 0) {
+                containerElement.innerHTML = `<p class="text-center text-[#949ba4] py-3">${emptyMessage}</p>`;
+                return;
+            }
+
+            const myReplays = getMyReplays();
+
+            containerElement.innerHTML = '';
+            listData.forEach((item, index) => {
+                let badgeText = [];
+                if(item.subBenefit) badgeText.push('🩷 구독자');
+                if(item.followTicket) badgeText.push('🌸 팔로우');
+                if(item.cheeseSupport) badgeText.push('🧀 2천치즈+');
+
+                const badgesHtml = badgeText.length > 0 
+                    ? `<div class="flex gap-1 mt-1">${badgeText.map(b => `<span class="bg-[#5865F2]/20 text-[#a1b0ff] text-[10px] px-1.5 py-0.5 rounded">${b}</span>`).join('')}</div>`
+                    : '';
+
+                let timeStr = '방금 전';
+                if (item.createdAt && item.createdAt.toDate) {
+                    timeStr = item.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
+
+                const isViewed = item.viewed === true;
+                const itemBgClass = isViewed ? 'bg-[#1e1f22]/60 opacity-60' : 'bg-[#2b2d31] hover:bg-[#35363c]';
+                const textDecoration = isViewed ? 'line-through text-[#949ba4]' : 'text-white';
+
+                const viewedCheckboxHtml = isAdminMode 
+                    ? `<label class="flex items-center gap-1.5 cursor-pointer bg-[#1e1f22] px-2 py-1 rounded text-[11px] text-[#f0b232] font-semibold select-none border border-[#3f4147] discord-transition">
+                           <input type="checkbox" ${isViewed ? 'checked' : ''} onchange="toggleViewedStatus('${item.id}', ${isViewed})" class="accent-[#5865F2] w-3.5 h-3.5 cursor-pointer">
+                           <span>시청완료</span>
+                       </label>`
+                    : (isViewed ? `<span class="bg-[#23a55a]/20 text-[#23a55a] text-[10px] px-2 py-0.5 rounded font-bold">✔ 시청완료</span>` : '');
+
+                const isMyPost = myReplays.includes(item.id);
+                const ownerActionHtml = isMyPost ? `
+                    <div class="flex items-center justify-end gap-1.5 mt-2 pt-2 border-t border-[#3f4147]/60">
+                        <span class="text-[10px] text-[#eb459e] font-medium mr-auto">✨ 내가 작성한 신청서</span>
+                        <button onclick="openEditModal('${item.id}')" class="text-[10px] bg-[#3f4147] hover:bg-[#4e5058] active:scale-95 text-[#b5bac1] hover:text-white px-2 py-1 rounded discord-transition flex items-center gap-1 font-medium">
+                            ✏️ 수정
+                        </button>
+                        <button onclick="deleteMyReplay('${item.id}')" class="text-[10px] bg-red-500/20 hover:bg-red-500 active:scale-95 text-red-400 hover:text-white px-2 py-1 rounded discord-transition flex items-center gap-1 font-medium">
+                            🗑️ 삭제
+                        </button>
+                    </div>
+                ` : '';
+
+                const itemEl = document.createElement('div');
+                itemEl.className = `${itemBgClass} p-3 rounded-md border border-[#1f2023] space-y-1.5 discord-transition`;
+                itemEl.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-xs ${textDecoration}">#${index + 1} [${item.matchType}] ${item.nickname}</span>
+                        <div class="flex items-center gap-2">
+                            ${viewedCheckboxHtml}
+                            <span class="text-[10px] text-[#949ba4]">${timeStr}</span>
+                        </div>
+                    </div>
+                    <div class="text-[#949ba4] flex items-center justify-between text-[11px]">
+                        <span>코드: 
+                            <button onclick="copyReplayCode('${item.replayCode}')" class="bg-[#5865F2]/20 hover:bg-[#5865F2] hover:text-white active:scale-95 text-[#a1b0ff] font-mono font-bold px-2 py-0.5 rounded discord-transition inline-flex items-center gap-1">
+                                📋 ${item.replayCode} <span class="text-[9px] opacity-75">(복사)</span>
+                            </button>
+                        </span>
+                        <span>티어: <span class="${textDecoration}">${item.tier}</span></span>
+                    </div>
+                    <p class="text-[#949ba4] text-[11px] truncate">제목: ${item.replayTitle}</p>
+                    ${badgesHtml}
+                    ${ownerActionHtml}
+                `;
+                containerElement.appendChild(itemEl);
+            });
+        }
+
+        function showToast(title, desc, type = 'success') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-title').textContent = title;
+            document.getElementById('toast-desc').textContent = desc;
+            
+            const titleEl = document.getElementById('toast-title');
+            if(type === 'error') titleEl.className = 'font-bold text-xs text-[#f23f43]';
+            else if(type === 'info') titleEl.className = 'font-bold text-xs text-[#f0b232]';
+            else titleEl.className = 'font-bold text-xs text-white';
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
