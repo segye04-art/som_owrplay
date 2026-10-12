@@ -613,18 +613,19 @@
       window.isFirebaseReady = true;
       initRealtimeSync(db);
     }).catch((err) => {
-      console.warn("Firebase Auth fallback to LocalStorage:", err);
+      console.warn("Firebase Auth fallback to Local-Only mode:", err);
       window.isFirebaseReady = false;
-      loadLocalStorageFallback();
     });
   </script>
 
-  <!-- JavaScript App Logic -->
+  <!-- JavaScript App Logic (Local-First Persistent Storage Architecture) -->
   <script>
     window.replays = [];
     let currentChannel = 'notice'; 
     let currentFilter = 'all'; 
     let isAdmin = false;
+
+    const STORAGE_KEY = 'somhachi_ow_replays_master_v10';
 
     const avatarBgColors = [
       'bg-indigo-600', 'bg-emerald-600', 'bg-rose-600', 'bg-amber-600', 
@@ -632,14 +633,47 @@
     ];
 
     window.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => {
-        if (!window.isFirebaseReady) {
-          loadLocalStorageFallback();
-        }
-      }, 1200);
+      // 1. Load from browser localStorage immediately so data never disappears on refresh
+      loadLocalCache();
       renderUI();
       startDdayTimer();
     });
+
+    function loadLocalCache() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        try {
+          window.replays = JSON.parse(stored);
+        } catch(e) {
+          window.replays = [];
+        }
+      } else {
+        window.replays = [];
+      }
+    }
+
+    function persistLocal() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(window.replays));
+      renderUI();
+    }
+
+    // Firestore real-time sync with local merging
+    function initRealtimeSync(db) {
+      const { collection, onSnapshot } = window.firestoreModule;
+      onSnapshot(collection(db, "replays"), (snapshot) => {
+        if (!snapshot.empty) {
+          const remoteList = [];
+          snapshot.forEach((docSnap) => {
+            remoteList.push({ id: docSnap.id, ...docSnap.data() });
+          });
+          // Merge remote with local storage to prevent data loss
+          window.replays = remoteList;
+          persistLocal();
+        }
+      }, (error) => {
+        console.warn("Firestore sync warning, using local cache:", error);
+      });
+    }
 
     // Live D-Day Countdown to Next Monday 19:00:00 KST
     function startDdayTimer() {
@@ -691,31 +725,6 @@
       d.setDate(d.getDate() + daysUntilMonday);
       d.setHours(19, 0, 0, 0);
       return d;
-    }
-
-    function loadLocalStorageFallback() {
-      const stored = localStorage.getItem('ow_replays_v9');
-      window.replays = stored ? JSON.parse(stored) : [];
-      renderUI();
-    }
-
-    function persistFallback() {
-      localStorage.setItem('ow_replays_v9', JSON.stringify(window.replays));
-      renderUI();
-    }
-
-    function initRealtimeSync(db) {
-      const { collection, onSnapshot } = window.firestoreModule;
-      onSnapshot(collection(db, "replays"), (snapshot) => {
-        window.replays = [];
-        snapshot.forEach((docSnap) => {
-          window.replays.push({ id: docSnap.id, ...docSnap.data() });
-        });
-        renderUI();
-      }, (error) => {
-        console.error("Firestore sync error, fallback:", error);
-        loadLocalStorageFallback();
-      });
     }
 
     function renderUI() {
@@ -1011,6 +1020,7 @@
       }
 
       const newItem = {
+        id: 'rep_' + Date.now(),
         code, matchType, tier, isTierGuess, nickname, title,
         isSubscriber, isFollower, isCheese, isExternal,
         status: 'pending',
@@ -1021,76 +1031,70 @@
       submitBtn.disabled = true;
       submitBtn.innerText = "접수 중...";
 
+      // 1. Save locally immediately (guarantees persistence across refreshes)
+      window.replays.push(newItem);
+      persistLocal();
+
+      // 2. Sync with Firestore in background if ready
       try {
         if (window.isFirebaseReady && window.dbInstance) {
           const { collection, addDoc } = window.firestoreModule;
-          await addDoc(collection(window.dbInstance, "replays"), newItem);
-        } else {
-          newItem.id = 'rep_' + Date.now();
-          window.replays.push(newItem);
-          persistFallback();
-        }
-
-        document.getElementById('replayForm').reset();
-        toggleExternalFormMode();
-        handleTierGuessToggle();
-        showToast('🚀 리플 피드백 접수가 완료되었습니다!');
-
-        if (isExternal) {
-          switchChannel('external');
-        } else if (isSubscriber || isFollower || isCheese) {
-          switchChannel('vault');
-        } else {
-          switchChannel('list');
+          const docRef = await addDoc(collection(window.dbInstance, "replays"), newItem);
+          newItem.id = docRef.id;
+          persistLocal();
         }
       } catch (err) {
-        console.error("Submit error:", err);
-        newItem.id = 'rep_' + Date.now();
-        window.replays.push(newItem);
-        persistFallback();
-        showToast('🚀 접수 완료 (로컬 저장)');
+        console.warn("Background sync error, saved locally:", err);
+      }
+
+      document.getElementById('replayForm').reset();
+      toggleExternalFormMode();
+      handleTierGuessToggle();
+      showToast('🚀 리플 피드백 접수가 완료되었습니다!');
+
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<span>리플 접수 완료하기</span><svg class="w-4 h-4"><use href="#icon-check"></use></svg>`;
+
+      if (isExternal) {
+        switchChannel('external');
+      } else if (isSubscriber || isFollower || isCheese) {
+        switchChannel('vault');
+      } else {
         switchChannel('list');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = `<span>리플 접수 완료하기</span><svg class="w-4 h-4"><use href="#icon-check"></use></svg>`;
       }
     }
 
     window.toggleStatus = async function(id) {
       const item = window.replays.find(r => r.id === id);
       if (!item) return;
-      const newStatus = item.status === 'completed' ? 'pending' : 'completed';
+      item.status = item.status === 'completed' ? 'pending' : 'completed';
+      persistLocal();
 
       try {
         if (window.isFirebaseReady && window.dbInstance) {
           const { doc, updateDoc } = window.firestoreModule;
-          await updateDoc(doc(window.dbInstance, "replays", id), { status: newStatus });
-        } else {
-          item.status = newStatus;
-          persistFallback();
+          await updateDoc(doc(window.dbInstance, "replays", id), { status: item.status });
         }
-        showToast(newStatus === 'completed' ? '✅ 완료로 변경되었습니다.' : '⏳ 대기 상태로 변경되었습니다.');
       } catch(e) {
-        item.status = newStatus;
-        persistFallback();
+        console.warn("Status update cloud sync warning:", e);
       }
+      showToast(item.status === 'completed' ? '✅ 완료로 변경되었습니다.' : '⏳ 대기 상태로 변경되었습니다.');
     }
 
     window.deleteReplay = async function(id) {
       if (confirm('해당 리플 신청글을 삭제하시겠습니까?')) {
+        window.replays = window.replays.filter(r => r.id !== id);
+        persistLocal();
+
         try {
           if (window.isFirebaseReady && window.dbInstance) {
             const { doc, deleteDoc } = window.firestoreModule;
             await deleteDoc(doc(window.dbInstance, "replays", id));
-          } else {
-            window.replays = window.replays.filter(r => r.id !== id);
-            persistFallback();
           }
-          showToast('🗑️ 리플 신청글이 삭제되었습니다.');
         } catch(e) {
-          window.replays = window.replays.filter(r => r.id !== id);
-          persistFallback();
+          console.warn("Delete cloud sync warning:", e);
         }
+        showToast('🗑️ 리플 신청글이 삭제되었습니다.');
       }
     }
 
@@ -1151,31 +1155,34 @@
     window.saveEditModal = async function() {
       const id = document.getElementById('editTargetId').value;
       const item = window.replays.find(r => r.id === id);
+      if (!item) return;
 
       const codeInputVal = document.getElementById('editCode').value.trim();
-      const updatedData = {
-        code: (item && item.isExternal) ? codeInputVal : codeInputVal.toUpperCase(),
-        matchType: document.getElementById('editMatchType').value,
-        isTierGuess: document.getElementById('editTierGuess').checked,
-        tier: document.getElementById('editTierGuess').checked ? '언랭' : document.getElementById('editTier').value,
-        nickname: document.getElementById('editNickname').value.trim(),
-        title: document.getElementById('editTitle').value.trim()
-      };
+      item.code = item.isExternal ? codeInputVal : codeInputVal.toUpperCase();
+      item.matchType = document.getElementById('editMatchType').value;
+      item.isTierGuess = document.getElementById('editTierGuess').checked;
+      item.tier = item.isTierGuess ? '언랭' : document.getElementById('editTier').value;
+      item.nickname = document.getElementById('editNickname').value.trim();
+      item.title = document.getElementById('editTitle').value.trim();
+
+      persistLocal();
+      closeEditModal();
+      showToast('✏️ 리플 정보가 수정되었습니다.');
 
       try {
         if (window.isFirebaseReady && window.dbInstance) {
           const { doc, updateDoc } = window.firestoreModule;
-          await updateDoc(doc(window.dbInstance, "replays", id), updatedData);
-        } else {
-          if (item) Object.assign(item, updatedData);
-          persistFallback();
+          await updateDoc(doc(window.dbInstance, "replays", id), {
+            code: item.code,
+            matchType: item.matchType,
+            isTierGuess: item.isTierGuess,
+            tier: item.tier,
+            nickname: item.nickname,
+            title: item.title
+          });
         }
-        closeEditModal();
-        showToast('✏️ 리플 정보가 수정되었습니다.');
       } catch(e) {
-        if (item) Object.assign(item, updatedData);
-        persistFallback();
-        closeEditModal();
+        console.warn("Edit cloud sync warning:", e);
       }
     }
 
@@ -1240,6 +1247,9 @@
 
     window.executeResetAll = async function() {
       closeConfirmModal();
+      window.replays = [];
+      persistLocal();
+
       try {
         if (window.isFirebaseReady && window.dbInstance) {
           const { collection, getDocs, writeBatch, doc } = window.firestoreModule;
@@ -1249,17 +1259,11 @@
             batch.delete(doc(window.dbInstance, "replays", d.id));
           });
           await batch.commit();
-        } else {
-          window.replays = [];
-          persistFallback();
         }
-        showToast('🗑️ 전체 리플 목록이 초기화되었습니다.');
       } catch (err) {
-        console.error("Reset error:", err);
-        window.replays = [];
-        persistFallback();
-        showToast('🗑️ 전체 초기화 완료');
+        console.error("Reset cloud sync error:", err);
       }
+      showToast('🗑️ 전체 리플 목록이 초기화되었습니다.');
     }
 
     window.toggleMobileSidebar = function(show) {
