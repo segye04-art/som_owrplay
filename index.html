@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오버워치 영수증 리플 보관함</title>
+  
+  <!-- Pretendard + 영수증/코드용 폰트 -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --receipt-bg: #fdfbf7;
+      --receipt-line: #111111;
+      --receipt-muted: #666666;
+      --accent-red: #ff3b30;
+      --accent-blue: #007aff;
+      --gold: #d4af37;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    }
+
+    body {
+      background-color: #2c2c2e;
+      color: var(--receipt-line);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px 10px;
+    }
+
+    /* 영수증 용지 전체 컨테이너 */
+    .receipt-container {
+      width: 100%;
+      max-width: 480px;
+      background-color: var(--receipt-bg);
+      padding: 24px 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      position: relative;
+      border-radius: 2px;
+      background-image: 
+        radial-gradient(circle, transparent 50%, var(--receipt-bg) 50%);
+      background-size: 10px 10px;
+    }
+
+    /* 영수증 상단 헤더 */
+    .receipt-header {
+      text-align: center;
+      border-bottom: 2px dashed var(--receipt-line);
+      padding-bottom: 16px;
+      margin-bottom: 16px;
+    }
+
+    .receipt-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+
+    .receipt-subtitle {
+      font-size: 0.8rem;
+      color: var(--receipt-muted);
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    /* 안내 및 슬롯 바둑판 박스 */
+    .notice-box {
+      border: 1px solid var(--receipt-line);
+      padding: 12px;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      margin-bottom: 16px;
+      background: #fff;
+    }
+
+    .notice-box .highlight {
+      font-family: 'Share Tech Mono', monospace;
+      font-weight: bold;
+      color: var(--accent-red);
+    }
+
+    /* 폼 스타일 */
+    .form-section {
+      border-bottom: 2px dashed var(--receipt-line);
+      padding-bottom: 16px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--receipt-muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    .required { color: var(--accent-red); }
+
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 10px;
+      background-color: #fff;
+      border: 1px solid var(--receipt-line);
+      border-radius: 0;
+      color: var(--receipt-line);
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    input#replayCode, input[type="number"] {
+      font-family: 'Share Tech Mono', monospace;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    input:focus, select:focus {
+      background-color: #fffdf0;
+    }
+
+    input:disabled, select:disabled {
+      opacity: 0.3;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+    }
+
+    .radio-btn { position: relative; }
+    .radio-btn input { position: absolute; opacity: 0; }
+
+    .radio-btn label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 4px;
+      background: #fff;
+      border: 1px solid var(--receipt-line);
+      color: var(--receipt-line);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin: 0;
+      text-align: center;
+    }
+
+    .radio-btn input:checked + label {
+      background: var(--receipt-line);
+      color: #fff;
+    }
+
+    .checkbox-group {
+      border: 1px solid var(--receipt-line);
+      padding: 10px;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .cheese-input-box {
+      margin-top: 4px;
+      margin-left: 24px;
+      display: none;
+    }
+    .cheese-input-box.active { display: block; }
+
+    .btn-container {
+      display: flex;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .submit-btn {
+      flex: 1;
+      padding: 12px;
+      background: var(--receipt-line);
+      color: #fff;
+      border: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .cancel-btn {
+      display: none;
+      padding: 12px 14px;
+      background: #ddd;
+      color: var(--receipt-line);
+      border: 1px solid var(--receipt-line);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    /* 영수증 보관함 탭 */
+    .vault-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px;
+      background: #eee;
+      border: 1px solid var(--receipt-line);
+      color: var(--receipt-muted);
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: var(--receipt-line);
+      color: #fff;
+    }
+
+    .replay-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* 개별 영수증 항목 아이템 */
+    .replay-item {
+      border: 1px dashed var(--receipt-line);
+      padding: 10px;
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .replay-item.watched {
+      opacity: 0.4;
+    }
+
+    .replay-item.watched .replay-code {
+      text-decoration: line-through;
+    }
+
+    .receipt-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .admin-watch-check {
+      display: none;
+      width: 16px;
+      height: 16px;
+      accent-color: var(--receipt-line);
+    }
+    .admin-watch-check.active { display: block; }
+
+    .replay-code {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .tag {
+      font-size: 0.7rem;
+      padding: 1px 4px;
+      border: 1px solid var(--receipt-line);
+      font-weight: 600;
+    }
+
+    .tag.slot { background: #000; color: #fff; font-family: 'Share Tech Mono'; }
+    .tag.tier { background: #f0f0f0; }
+
+    .replay-memo {
+      font-size: 0.78rem;
+      color: var(--receipt-muted);
+      margin-top: 4px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 4px;
+    }
+
+    .action-btn {
+      padding: 6px 8px;
+      background: #fff;
+      border: 1px solid var(--receipt-line);
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .action-btn.copy { background: #eef5ff; color: var(--accent-blue); }
+    .action-btn.edit { background: #fffde6; color: #b58900; }
+    .action-btn.delete { background: #ffebee; color: var(--accent-red); display: none; }
+
+    .admin-trigger {
+      background: none;
+      border: none;
+      font-size: 0.75rem;
+      text-decoration: underline;
+      cursor: pointer;
+      color: var(--receipt-muted);
+    }
+
+    .admin-controls {
+      display: none;
+      background: #fff3f3;
+      border: 1px dashed var(--accent-red);
+      padding: 8px;
+      margin-bottom: 12px;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+    .admin-controls.active { display: flex; }
+
+    .danger-btn {
+      background: var(--accent-red);
+      color: #fff;
+      border: none;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .empty-msg {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.8rem;
+      color: var(--receipt-muted);
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    /* 영수증 하단 절취선 효과 */
+    .receipt-footer {
+      text-align: center;
+      margin-top: 20px;
+      border-top: 2px dashed var(--receipt-line);
+      padding-top: 10px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--receipt-muted);
+    }
+  </style>
+</head>
+<body>
+
+<div class="receipt-container">
+
+  <!-- 영수증 헤더 -->
+  <div class="receipt-header">
+    <div class="receipt-title">[ OVERWATCH REPLAY RECEIPT ]</div>
+    <div class="receipt-subtitle">-- WEEKLY FEEDBACK SYSTEM --</div>
+  </div>
+
+  <!-- 공지사항 및 슬롯 -->
+  <div class="notice-box">
+    • 1인당 최대 2개 신청 가능 (팔로우 유입 시 +1권)<br>
+    • 현재 총 슬롯: <span class="highlight" id="slotDisplay">0 / 12개</span><br>
+    • 마감: <span class="highlight">매주 월요일 오후 7시</span>
+  </div>
+
+  <!-- 신청서 폼 -->
+  <div class="form-section">
+    <div class="section-title">
+      <span id="formTitleText">🧾 REPLAY APPLICATION</span>
+      <button class="admin-trigger" onclick="openAdminMode()">ADMIN</button>
+    </div>
+
+    <div class="admin-controls" id="adminPanel">
+      <span>관리자 모드 활성화됨</span>
+      <button class="danger-btn" onclick="resetAllReplays()">전체 초기화</button>
+    </div>
+
+    <form id="replayForm">
+      <div class="form-group">
+        <label>닉네임 <span class="required">*</span></label>
+        <input type="text" id="nickname" placeholder="배틀태그 / 닉네임" required>
+      </div>
+
+      <div class="form-group">
+        <label>리플 코드 (6자리) <span class="required">*</span></label>
+        <input type="text" id="replayCode" maxlength="6" placeholder="예: X8K2P9" required style="text-transform: uppercase;">
+      </div>
+
+      <div class="form-group">
+        <label>매치 유형 <span class="required">*</span></label>
+        <div class="options-grid">
+          <div class="radio-btn">
+            <input type="radio" id="matchComp" name="matchType" value="경쟁전" checked>
+            <label for="matchComp">경쟁전</label>
+          </div>
+          <div class="radio-btn">
+            <input type="radio" id="matchQuick" name="matchType" value="빠른대전">
+            <label for="matchQuick">빠른대전</label>
+          </div>
+          <div class="radio-btn">
+            <input type="radio" id="matchArcade" name="matchType" value="아케이드">
+            <label for="matchArcade">아케이드</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>경쟁전 티어</label>
+        <select id="tierSelect">
+          <option value="브론즈">브론즈</option>
+          <option value="실버">실버</option>
+          <option value="골드">골드</option>
+          <option value="플레티넘">플레티넘</option>
+          <option value="에메랄드">에메랄드</option>
+          <option value="다이아몬드">다이아몬드</option>
+          <option value="마스터">마스터</option>
+          <option value="그랜드마스터">그랜드마스터</option>
+        </select>
+        
+        <div style="margin-top: 6px;">
+          <label class="check-item">
+            <input type="checkbox" id="tierGuessCheck">
+            <span>티어맞춤 진행 요청</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>메모 / 피드백 요청사항 (선택)</label>
+        <input type="text" id="title" placeholder="간단한 메모 입력">
+      </div>
+
+      <div class="form-group">
+        <label>추가 선택 항목 (추가 보관함 이동)</label>
+        <div class="checkbox-group">
+          <label class="check-item">
+            <input type="checkbox" id="checkFollow">
+            <span>팔로우 유입 (+1 무료 신청권)</span>
+          </label>
+          
+          <label class="check-item">
+            <input type="checkbox" id="checkSub">
+            <span>구독자</span>
+          </label>
+
+          <label class="check-item">
+            <input type="checkbox" id="checkCheese">
+            <span>치즈 신청 (2,000 이상)</span>
+          </label>
+          
+          <div class="cheese-input-box" id="cheeseBox">
+            <input type="number" id="cheeseAmount" min="2000" placeholder="치즈 개수 입력">
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-container">
+        <button type="submit" class="submit-btn" id="submitBtn">신청서 발행하기</button>
+        <button type="button" class="cancel-btn" id="cancelEditBtn" onclick="resetFormState()">취소</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- 보관함 탭 & 리스트 -->
+  <div>
+    <div class="vault-tabs">
+      <button class="tab-btn active" id="tabNormalBtn" onclick="switchTab('normal')">일반 보관함 (<span id="normalCount">0</span>)</button>
+      <button class="tab-btn" id="tabExtraBtn" onclick="switchTab('extra')">추가 보관함 (<span id="extraCount">0</span>)</button>
+    </div>
+
+    <div id="normalVault" class="replay-list">
+      <div class="empty-msg">NO DATA FOUND</div>
+    </div>
+
+    <div id="extraVault" class="replay-list" style="display: none;">
+      <div class="empty-msg">NO DATA FOUND</div>
+    </div>
+  </div>
+
+  <!-- 영수증 하단 바코드 및 안내 -->
+  <div class="receipt-footer">
+    THANK YOU FOR SUBMITTING!<br>
+    * * * * * * * * * * * * * * * *<br>
+    IIIIII III II III IIIIII IIII
+  </div>
+
+</div>
+
+<!-- Firebase v11 SDK 연동 모듈 -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-analytics.js";
+  import { 
+    getFirestore, collection, addDoc, onSnapshot, deleteDoc, updateDoc, doc, writeBatch, query, orderBy 
+  } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCX56MHaSvyRzQrc0FXV3tg6qPP6XxmQaA",
+    authDomain: "somhachi-ac232.firebaseapp.com",
+    projectId: "somhachi-ac232",
+    storageBucket: "somhachi-ac232.firebasestorage.app",
+    messagingSenderId: "344363373779",
+    appId: "1:344363373779:web:019eb9cd2dadf8e2473026",
+    measurementId: "G-QPBRX0YZVT"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const db = getFirestore(app);
+  const replaysCol = collection(db, "replays");
+
+  let normalReplays = [];
+  let extraReplays = [];
+  let isAdmin = false;
+  let editingDocId = null;
+
+  const matchRadios = document.querySelectorAll('input[name="matchType"]');
+  const tierSelect = document.getElementById('tierSelect');
+  const tierGuessCheck = document.getElementById('tierGuessCheck');
+  const checkCheese = document.getElementById('checkCheese');
+  const cheeseBox = document.getElementById('cheeseBox');
+  const checkFollow = document.getElementById('checkFollow');
+  const checkSub = document.getElementById('checkSub');
+
+  function updateTierState() {
+    const selectedMatch = document.querySelector('input[name="matchType"]:checked').value;
+    const isTierGuess = tierGuessCheck.checked;
+
+    if (selectedMatch === '빠른대전' || selectedMatch === '아케이드' || isTierGuess) {
+      tierSelect.disabled = true;
+    } else {
+      tierSelect.disabled = false;
+    }
+  }
+
+  matchRadios.forEach(radio => radio.addEventListener('change', updateTierState));
+  tierGuessCheck.addEventListener('change', updateTierState);
+
+  checkCheese.addEventListener('change', () => {
+    if (checkCheese.checked) {
+      cheeseBox.classList.add('active');
+    } else {
+      cheeseBox.classList.remove('active');
+    }
+  });
+
+  checkFollow.addEventListener('change', () => {
+    const slotDisplay = document.getElementById('slotDisplay');
+    const totalCount = normalReplays.length + extraReplays.length;
+    if (checkFollow.checked) {
+      slotDisplay.innerText = `${totalCount} / 12개 (팔로우 혜택 적용)`;
+    } else {
+      slotDisplay.innerText = `${totalCount} / 12개`;
+    }
+  });
+
+  window.switchTab = function(tab) {
+    const normalVault = document.getElementById('normalVault');
+    const extraVault = document.getElementById('extraVault');
+    const tabNormalBtn = document.getElementById('tabNormalBtn');
+    const tabExtraBtn = document.getElementById('tabExtraBtn');
+
+    if (tab === 'normal') {
+      normalVault.style.display = 'flex';
+      extraVault.style.display = 'none';
+      tabNormalBtn.classList.add('active');
+      tabExtraBtn.classList.remove('active');
+    } else {
+      normalVault.style.display = 'none';
+      extraVault.style.display = 'flex';
+      tabExtraBtn.classList.add('active');
+      tabNormalBtn.classList.remove('active');
+    }
+  };
+
+  window.openAdminMode = function() {
+    if (isAdmin) {
+      const panel = document.getElementById('adminPanel');
+      panel.classList.toggle('active');
+      return;
+    }
+
+    const inputPw = prompt("관리자 비밀번호를 입력하세요:");
+    if (inputPw === "0104") {
+      isAdmin = true;
+      document.getElementById('adminPanel').classList.add('active');
+      renderLists();
+      alert("관리자 모드가 활성화되었습니다.");
+    } else if (inputPw !== null) {
+      alert("비밀번호가 일치하지 않습니다.");
+    }
+  };
+
+  window.toggleWatched = async function(id, currentStatus) {
+    if (!isAdmin) return;
+    try {
+      await updateDoc(doc(db, "replays", id), { isWatched: !currentStatus });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  window.editReplay = function(id) {
+    const allReplays = [...normalReplays, ...extraReplays];
+    const target = allReplays.find(r => r.id === id);
+    if (!target) return;
+
+    editingDocId = id;
+
+    document.getElementById('nickname').value = target.nickname || '';
+    document.getElementById('replayCode').value = target.replayCode || '';
+    
+    const matchRadio = document.querySelector(`input[name="matchType"][value="${target.matchType}"]`);
+    if (matchRadio) matchRadio.checked = true;
+
+    if (target.tier === '티어맞춤') {
+      tierGuessCheck.checked = true;
+    } else {
+      tierGuessCheck.checked = false;
+      if (target.tier && target.tier !== '-') {
+        tierSelect.value = target.tier;
+      }
+    }
+    updateTierState();
+
+    document.getElementById('title').value = target.title || '';
+
+    const tags = target.tags || [];
+    checkFollow.checked = tags.includes('팔로우');
+    checkSub.checked = tags.includes('구독자');
+
+    const cheeseTag = tags.find(t => t.includes('치즈'));
+    if (cheeseTag) {
+      checkCheese.checked = true;
+      cheeseBox.classList.add('active');
+      const amountMatch = cheeseTag.match(/\d+/);
+      if (amountMatch) {
+        document.getElementById('cheeseAmount').value = amountMatch[0];
+      }
+    } else {
+      checkCheese.checked = false;
+      cheeseBox.classList.remove('active');
+      document.getElementById('cheeseAmount').value = '';
+    }
+
+    document.getElementById('formTitleText').innerText = "📝 REPLAY EDITING";
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.innerText = "수정 완료하기";
+    document.getElementById('cancelEditBtn').style.display = "block";
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  window.resetFormState = function() {
+    editingDocId = null;
+    document.getElementById('replayForm').reset();
+    cheeseBox.classList.remove('active');
+    updateTierState();
+
+    document.getElementById('formTitleText').innerText = "🧾 REPLAY APPLICATION";
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.innerText = "신청서 발행하기";
+    document.getElementById('cancelEditBtn').style.display = "none";
+  };
+
+  window.deleteReplay = async function(id) {
+    if (!isAdmin) return;
+    if (confirm("해당 영수증 내역을 삭제하시겠습니까?")) {
+      try {
+        await deleteDoc(doc(db, "replays", id));
+      } catch (err) {
+        alert("삭제 실패: " + err.message);
+      }
+    }
+  };
+
+  window.resetAllReplays = async function() {
+    if (!isAdmin) return;
+    if (confirm("모든 영수증 내역을 초기화하시겠습니까?")) {
+      try {
+        const batch = writeBatch(db);
+        [...normalReplays, ...extraReplays].forEach(item => {
+          batch.delete(doc(db, "replays", item.id));
+        });
+        await batch.commit();
+        alert("초기화 완료되었습니다.");
+      } catch (err) {
+        alert("초기화 실패: " + err.message);
+      }
+    }
+  };
+
+  window.copyCode = function(code) {
+    navigator.clipboard.writeText(code).then(() => {
+      alert(`[${code}] 코드 복사 완료!`);
+    }).catch(() => {
+      alert("복사 실패");
+    });
+  };
+
+  document.getElementById('replayForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const nickname = document.getElementById('nickname').value.trim();
+    const replayCode = document.getElementById('replayCode').value.trim().toUpperCase();
+    const matchType = document.querySelector('input[name="matchType"]:checked').value;
+    const isTierGuess = tierGuessCheck.checked;
+    const tier = isTierGuess ? '티어맞춤' : (tierSelect.disabled ? '-' : tierSelect.value);
+    const title = document.getElementById('title').value.trim();
+
+    const isFollow = checkFollow.checked;
+    const isSub = checkSub.checked;
+    const isCheese = checkCheese.checked;
+    const cheeseAmt = parseInt(document.getElementById('cheeseAmount').value) || 0;
+
+    if (isCheese && cheeseAmt < 2000) {
+      alert("치즈 추가 신청은 2,000 치즈 이상부터 가능합니다.");
+      return;
+    }
+
+    const tags = [];
+    if (isFollow) tags.push('팔로우');
+    if (isSub) tags.push('구독자');
+    if (isCheese) tags.push(`${cheeseAmt} 치즈`);
+
+    const isExtra = isFollow || isSub || isCheese;
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+
+    try {
+      if (editingDocId) {
+        await updateDoc(doc(db, "replays", editingDocId), {
+          nickname, replayCode, matchType, tier, title, tags, isExtra
+        });
+        alert("수정 완료되었습니다!");
+        resetFormState();
+      } else {
+        await addDoc(replaysCol, {
+          nickname, replayCode, matchType, tier, title, tags, isExtra,
+          isWatched: false,
+          createdAt: Date.now()
+        });
+        resetFormState();
+        alert("영수증이 발행(신청)되었습니다!");
+      }
+    } catch (err) {
+      alert("처리에 실패했습니다: " + err.message);
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  const q = query(replaysCol, orderBy("createdAt", "asc"));
+  onSnapshot(q, (snapshot) => {
+    normalReplays = [];
+    extraReplays = [];
+
+    let normalCounter = 1;
+    let extraCounter = 1;
+
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      if (data.isExtra) {
+        extraReplays.unshift({ id: docSnap.id, ...data, slotOrder: extraCounter++ });
+      } else {
+        normalReplays.unshift({ id: docSnap.id, ...data, slotOrder: normalCounter++ });
+      }
+    });
+
+    renderLists();
+  }, (error) => {
+    console.error("데이터 수신 오류:", error);
+  });
+
+  function renderLists() {
+    renderVault('normalVault', normalReplays, 'NO DATA FOUND');
+    renderVault('extraVault', extraReplays, 'NO DATA FOUND');
+
+    document.getElementById('normalCount').innerText = normalReplays.length;
+    document.getElementById('extraCount').innerText = extraReplays.length;
+
+    const totalCount = normalReplays.length + extraReplays.length;
+    const isFollowChecked = document.getElementById('checkFollow').checked;
+    document.getElementById('slotDisplay').innerText = isFollowChecked ? `${totalCount} / 12개 (팔로우 혜택 적용)` : `${totalCount} / 12개`;
+  }
+
+  function renderVault(elementId, dataList, emptyText) {
+    const container = document.getElementById(elementId);
+    if (dataList.length === 0) {
+      container.innerHTML = `<div class="empty-msg">${emptyText}</div>`;
+      return;
+    }
+
+    container.innerHTML = dataList.map(item => `
+      <div class="replay-item ${item.isWatched ? 'watched' : ''}">
+        <div style="display:flex; align-items:center; gap:8px; min-width:0; flex:1;">
+          <input type="checkbox" 
+                 class="admin-watch-check ${isAdmin ? 'active' : ''}" 
+                 ${item.isWatched ? 'checked' : ''} 
+                 onchange="toggleWatched('${item.id}', ${!!item.isWatched})">
+          <div style="min-width:0; flex:1;">
+            <div class="receipt-row">
+              <span class="tag slot">#${item.slotOrder}</span>
+              <span class="replay-code">${item.replayCode}</span>
+              <span class="tag tier">${item.matchType} ${item.tier !== '-' ? '| ' + item.tier : ''}</span>
+              ${item.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+              ${item.isWatched ? '<span class="tag" style="background:#d4edda; color:#155724;">✓ 완료</span>' : ''}
+            </div>
+            <div class="replay-memo">
+              <b>${item.nickname}</b> ${item.title ? `- "${item.title}"` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="action-btn copy" onclick="copyCode('${item.replayCode}')">복사</button>
+          <button class="action-btn edit" onclick="editReplay('${item.id}')">수정</button>
+          <button class="action-btn delete" style="display: ${isAdmin ? 'block' : 'none'};" onclick="deleteReplay('${item.id}')">삭제</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  updateTierState();
+</script>
+
+</body>
+</html>
