@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오버워치 리플 보관함</title>
+  
+  <!-- Pretendard + Fira Code + Inter 폰트 -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-server-sidebar: #1e1f22;
+      --bg-channel-sidebar: #2b2d31;
+      --bg-chat-area: #313338;
+      --bg-card: #2b2d31;
+      --bg-input: #1e1f22;
+      --accent-blurple: #5865f2;
+      --accent-hover: #4752c4;
+      --text-normal: #dbdee1;
+      --text-muted: #949ba4;
+      --text-header: #f2f3f5;
+      --border-color: #3f4147;
+      --gold: #f1c40f;
+      --neon-green: #2ecc71;
+      
+      --font-main: 'Pretendard Variable', 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      --font-code: 'Fira Code', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-main);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg-server-sidebar);
+      color: var(--text-normal);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    .discord-app {
+      display: flex;
+      width: 100%;
+      max-width: 900px;
+      min-height: 100vh;
+      background-color: var(--bg-chat-area);
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    }
+
+    /* 사이드바 (PC 전용 기본 노출) */
+    .discord-sidebar {
+      width: 220px;
+      background-color: var(--bg-channel-sidebar);
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(0,0,0,0.2);
+      flex-shrink: 0;
+    }
+
+    .sidebar-header {
+      height: 48px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--bg-server-sidebar);
+      font-weight: 700;
+      color: var(--text-header);
+      font-size: 0.95rem;
+    }
+
+    .channel-list {
+      padding: 12px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .channel-category {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      padding: 6px 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .channel-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 4px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .channel-item.active, .channel-item:hover {
+      background-color: rgba(255, 255, 255, 0.07);
+      color: var(--text-header);
+    }
+
+    .channel-item.active { font-weight: 600; }
+
+    .channel-hash {
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    /* 메인 영역 */
+    .discord-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      width: 100%;
+    }
+
+    .main-header {
+      height: 48px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid rgba(0,0,0,0.2);
+      background-color: var(--bg-chat-area);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .main-header .title {
+      font-weight: 700;
+      color: var(--text-header);
+      font-size: 0.95rem;
+    }
+
+    .content-area {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-header);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .notice-card {
+      background-color: var(--bg-card);
+      border-left: 4px solid var(--accent-blurple);
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+
+    .notice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .timer-badge {
+      background-color: rgba(88, 101, 242, 0.15);
+      color: var(--accent-blurple);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .slot-info {
+      font-weight: 700;
+      color: var(--gold);
+      font-family: var(--font-code);
+    }
+
+    .form-group { margin-bottom: 14px; }
+
+    label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .required { color: #f23f43; }
+
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 11px 12px; /* 모바일 터치 편의성 패딩 증가 */
+      background-color: var(--bg-input);
+      border: 1px solid rgba(0,0,0,0.3);
+      border-radius: 4px;
+      color: var(--text-header);
+      font-size: 0.95rem; /* 모바일 가독성을 위해 폰트 소폭 상향 */
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="number"], input#replayCode {
+      font-family: var(--font-code);
+      letter-spacing: 0.5px;
+    }
+
+    input:focus, select:focus { border-color: var(--accent-blurple); }
+
+    input:disabled, select:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .radio-btn { position: relative; }
+    .radio-btn input { position: absolute; opacity: 0; }
+
+    .radio-btn label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 8px;
+      background-color: var(--bg-input);
+      border: 1px solid transparent;
+      border-radius: 4px;
+      color: var(--text-normal);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin: 0;
+      transition: all 0.15s;
+    }
+
+    .radio-btn input:checked + label {
+      background-color: var(--accent-blurple);
+      color: white;
+      font-weight: 700;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background-color: var(--bg-input);
+      padding: 12px;
+      border-radius: 4px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 0.88rem;
+    }
+
+    .check-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-blurple);
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .cheese-input-box {
+      margin-top: 6px;
+      margin-left: 28px;
+      display: none;
+    }
+
+    .cheese-input-box.active { display: block; }
+
+    .btn-submit-container {
+      display: flex;
+      gap: 8px;
+    }
+
+    .submit-btn {
+      flex: 1;
+      padding: 12px;
+      background-color: var(--accent-blurple);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.15s;
+    }
+
+    .submit-btn:hover { background-color: var(--accent-hover); }
+
+    .cancel-btn {
+      display: none;
+      padding: 12px 16px;
+      background-color: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      border-radius: 4px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .cancel-btn:hover {
+      color: var(--text-normal);
+      border-color: var(--text-normal);
+    }
+
+    .vault-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 12px;
+      background-color: var(--bg-input);
+      border: none;
+      border-radius: 4px;
+      color: var(--text-muted);
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.15s;
+    }
+
+    .tab-btn.active {
+      background-color: var(--accent-blurple);
+      color: white;
+    }
+
+    .tab-btn span {
+      font-family: var(--font-code);
+      font-weight: 700;
+    }
+
+    .replay-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .replay-item {
+      background-color: var(--bg-input);
+      border-radius: 6px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 3px solid var(--text-muted);
+      transition: opacity 0.2s ease;
+      gap: 8px;
+    }
+
+    .replay-item.watched {
+      opacity: 0.45;
+    }
+
+    .replay-item.watched .replay-code {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .replay-left-sec {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .admin-watch-check {
+      display: none;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--neon-green);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .admin-watch-check.active {
+      display: block;
+    }
+
+    .replay-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .replay-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .replay-code {
+      font-family: var(--font-code);
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--gold);
+      letter-spacing: 1px;
+    }
+
+    .tag-badge {
+      font-size: 0.7rem;
+      padding: 2px 5px;
+      border-radius: 3px;
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .tag-badge.slot-order-tag {
+      background-color: rgba(88, 101, 242, 0.2);
+      color: var(--accent-blurple);
+      border: 1px solid rgba(88, 101, 242, 0.4);
+      font-family: var(--font-code);
+      font-weight: 700;
+    }
+
+    .tag-badge.tier { color: var(--neon-green); }
+    .tag-badge.num-tag { font-family: var(--font-code); }
+
+    .tag-badge.watched-tag {
+      background-color: rgba(46, 204, 113, 0.15);
+      color: var(--neon-green);
+      border: 1px solid rgba(46, 204, 113, 0.3);
+    }
+
+    .replay-subtext {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .action-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 6px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .action-btn:hover {
+      border-color: var(--text-normal);
+      color: var(--text-normal);
+    }
+
+    .action-btn.copy-btn {
+      border-color: rgba(88, 101, 242, 0.5);
+      color: #8ea1ff;
+      background: rgba(88, 101, 242, 0.1);
+    }
+
+    .action-btn.edit-btn {
+      border-color: rgba(241, 196, 15, 0.5);
+      color: #f1c40f;
+      background: rgba(241, 196, 15, 0.1);
+    }
+
+    .action-btn.delete-btn {
+      border-color: rgba(242, 63, 67, 0.5);
+      color: #f23f43;
+      display: none;
+    }
+
+    .admin-trigger {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .admin-controls {
+      display: none;
+      background: var(--bg-input);
+      padding: 10px 12px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px dashed var(--accent-blurple);
+    }
+
+    .admin-controls.active { display: flex; }
+
+    .danger-btn {
+      background-color: #f23f43;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .empty-msg {
+      text-align: center;
+      padding: 24px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* 📱 모바일 화면 최적화 미디어쿼리 (640px 이하) */
+    @media (max-width: 640px) {
+      .discord-sidebar {
+        display: none; /* 모바일에서 좌측 채널바 숨김 처리로 공간 극대화 */
+      }
+      
+      .discord-app {
+        max-width: 100%;
+        box-shadow: none;
+      }
+
+      .content-area {
+        padding: 10px;
+        gap: 10px;
+      }
+
+      .card {
+        padding: 14px;
+      }
+
+      .replay-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .replay-left-sec {
+        width: 100%;
+      }
+
+      .btn-group {
+        width: 100%;
+        justify-content: flex-end;
+      }
+
+      .action-btn {
+        flex: 1;
+        padding: 8px 4px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="discord-app">
+
+  <!-- 사이드바 (모바일에서는 숨김) -->
+  <div class="discord-sidebar">
+    <div class="sidebar-header">
+      <span>OVERWATCH REPLAY</span>
+    </div>
+    <div class="channel-list">
+      <div class="channel-category">안내 및 신청</div>
+      <div class="channel-item active">
+        <span class="channel-hash">#</span>
+        <span>리플코드-신청</span>
+      </div>
+      <div class="channel-category">보관함</div>
+      <div class="channel-item" onclick="switchTab('normal')">
+        <span class="channel-hash">#</span>
+        <span>일반-보관함</span>
+      </div>
+      <div class="channel-item" onclick="switchTab('extra')">
+        <span class="channel-hash">#</span>
+        <span>추가-보관함</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 메인 영역 -->
+  <div class="discord-main" id="mainScrollArea">
+    <div class="main-header">
+      <span class="channel-hash">#</span>
+      <span class="title">리플코드-신청</span>
+    </div>
+
+    <div class="content-area">
+
+      <!-- 공지사항 -->
+      <div class="card notice-card">
+        <div class="notice-header">
+          <span class="card-title" style="margin:0; border:none; font-size: 0.95rem;">신청 안내</span>
+          <span class="timer-badge">마감: 월요일 오후 7시</span>
+        </div>
+        • 1인당 최대 2개까지 신청 가능 (팔로우 유입 시 무료 신청권 +1장)<br>
+        • 기본 최대 리플 슬롯: <span class="slot-info" id="slotDisplay">0 / 12개</span><br>
+        • 추가 신청은 2,000 치즈 이상부터 가능
+      </div>
+
+      <!-- 신청서 / 수정 양식 -->
+      <div class="card" id="formCard">
+        <div class="card-title">
+          <span id="formTitleText">리플 코드 신청서 작성</span>
+          <button class="admin-trigger" onclick="openAdminMode()">관리자</button>
+        </div>
+        
+        <div class="admin-controls" id="adminPanel">
+          <span style="font-size: 0.8rem; color: var(--gold); font-weight: 600;">관리자 모드 활성화됨</span>
+          <button class="danger-btn" onclick="resetAllReplays()">전체 초기화</button>
+        </div>
+
+        <form id="replayForm">
+          <div class="form-group">
+            <label>닉네임 <span class="required">*</span></label>
+            <input type="text" id="nickname" placeholder="배틀태그 또는 닉네임" required>
+          </div>
+
+          <div class="form-group">
+            <label>리플 코드 <span class="required">*</span></label>
+            <input type="text" id="replayCode" maxlength="6" placeholder="6자리 코드 입력" required style="text-transform: uppercase;">
+          </div>
+
+          <div class="form-group">
+            <label>매치 유형 <span class="required">*</span></label>
+            <div class="options-grid">
+              <div class="radio-btn">
+                <input type="radio" id="matchComp" name="matchType" value="경쟁전" checked>
+                <label for="matchComp">경쟁전</label>
+              </div>
+              <div class="radio-btn">
+                <input type="radio" id="matchQuick" name="matchType" value="빠른대전">
+                <label for="matchQuick">빠른대전</label>
+              </div>
+              <div class="radio-btn">
+                <input type="radio" id="matchArcade" name="matchType" value="아케이드">
+                <label for="matchArcade">아케이드</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>경쟁전 티어</label>
+            <select id="tierSelect">
+              <option value="브론즈">브론즈</option>
+              <option value="실버">실버</option>
+              <option value="골드">골드</option>
+              <option value="플레티넘">플레티넘</option>
+              <option value="에메랄드">에메랄드</option>
+              <option value="다이아몬드">다이아몬드</option>
+              <option value="마스터">마스터</option>
+              <option value="그랜드마스터">그랜드마스터</option>
+            </select>
+            
+            <div style="margin-top: 8px;">
+              <label class="check-item">
+                <input type="checkbox" id="tierGuessCheck">
+                <span>티어맞춤 (방송 시 티어 맞추기 진행)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>제목 (선택)</label>
+            <input type="text" id="title" placeholder="피드백 받고 싶은 내용이나 간단한 메모">
+          </div>
+
+          <div class="form-group">
+            <label>추가 선택 항목 (선택 시 추가 보관함으로 이동)</label>
+            <div class="checkbox-group">
+              <label class="check-item">
+                <input type="checkbox" id="checkFollow">
+                <span>팔로우 유입 (+1장 무료 신청권)</span>
+              </label>
+              
+              <label class="check-item">
+                <input type="checkbox" id="checkSub">
+                <span>구독자</span>
+              </label>
+
+              <label class="check-item">
+                <input type="checkbox" id="checkCheese">
+                <span>치즈 신청 (2,000 치즈 이상)</span>
+              </label>
+              
+              <div class="cheese-input-box" id="cheeseBox">
+                <input type="number" id="cheeseAmount" min="2000" placeholder="치즈 개수 입력 (예: 2000)">
+              </div>
+            </div>
+          </div>
+
+          <div class="btn-submit-container">
+            <button type="submit" class="submit-btn" id="submitBtn">리플 코드 신청하기</button>
+            <button type="button" class="cancel-btn" id="cancelEditBtn" onclick="resetFormState()">취소</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 보관함 -->
+      <div class="card">
+        <div class="vault-tabs">
+          <button class="tab-btn active" id="tabNormalBtn" onclick="switchTab('normal')">일반 보관함 (<span id="normalCount">0</span>)</button>
+          <button class="tab-btn" id="tabExtraBtn" onclick="switchTab('extra')">추가 보관함 (<span id="extraCount">0</span>)</button>
+        </div>
+
+        <div id="normalVault" class="replay-list">
+          <div class="empty-msg">일반 신청 내역이 없습니다.</div>
+        </div>
+
+        <div id="extraVault" class="replay-list" style="display: none;">
+          <div class="empty-msg">추가 신청 내역이 없습니다.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Firebase v11 SDK 연동 모듈 -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-analytics.js";
+  import { 
+    getFirestore, collection, addDoc, onSnapshot, deleteDoc, updateDoc, doc, writeBatch, query, orderBy 
+  } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCX56MHaSvyRzQrc0FXV3tg6qPP6XxmQaA",
+    authDomain: "somhachi-ac232.firebaseapp.com",
+    projectId: "somhachi-ac232",
+    storageBucket: "somhachi-ac232.firebasestorage.app",
+    messagingSenderId: "344363373779",
+    appId: "1:344363373779:web:019eb9cd2dadf8e2473026",
+    measurementId: "G-QPBRX0YZVT"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const db = getFirestore(app);
+  const replaysCol = collection(db, "replays");
+
+  let normalReplays = [];
+  let extraReplays = [];
+  let isAdmin = false;
+  let editingDocId = null;
+
+  const matchRadios = document.querySelectorAll('input[name="matchType"]');
+  const tierSelect = document.getElementById('tierSelect');
+  const tierGuessCheck = document.getElementById('tierGuessCheck');
+  const checkCheese = document.getElementById('checkCheese');
+  const cheeseBox = document.getElementById('cheeseBox');
+  const checkFollow = document.getElementById('checkFollow');
+  const checkSub = document.getElementById('checkSub');
+
+  function updateTierState() {
+    const selectedMatch = document.querySelector('input[name="matchType"]:checked').value;
+    const isTierGuess = tierGuessCheck.checked;
+
+    if (selectedMatch === '빠른대전' || selectedMatch === '아케이드' || isTierGuess) {
+      tierSelect.disabled = true;
+    } else {
+      tierSelect.disabled = false;
+    }
+  }
+
+  matchRadios.forEach(radio => radio.addEventListener('change', updateTierState));
+  tierGuessCheck.addEventListener('change', updateTierState);
+
+  checkCheese.addEventListener('change', () => {
+    if (checkCheese.checked) {
+      cheeseBox.classList.add('active');
+    } else {
+      cheeseBox.classList.remove('active');
+    }
+  });
+
+  checkFollow.addEventListener('change', () => {
+    const slotDisplay = document.getElementById('slotDisplay');
+    const totalCount = normalReplays.length + extraReplays.length;
+    if (checkFollow.checked) {
+      slotDisplay.innerText = `${totalCount} / 12개 (팔로우 혜택 적용)`;
+    } else {
+      slotDisplay.innerText = `${totalCount} / 12개`;
+    }
+  });
+
+  window.switchTab = function(tab) {
+    const normalVault = document.getElementById('normalVault');
+    const extraVault = document.getElementById('extraVault');
+    const tabNormalBtn = document.getElementById('tabNormalBtn');
+    const tabExtraBtn = document.getElementById('tabExtraBtn');
+
+    if (tab === 'normal') {
+      normalVault.style.display = 'flex';
+      extraVault.style.display = 'none';
+      tabNormalBtn.classList.add('active');
+      tabExtraBtn.classList.remove('active');
+    } else {
+      normalVault.style.display = 'none';
+      extraVault.style.display = 'flex';
+      tabExtraBtn.classList.add('active');
+      tabNormalBtn.classList.remove('active');
+    }
+  };
+
+  window.openAdminMode = function() {
+    if (isAdmin) {
+      const panel = document.getElementById('adminPanel');
+      panel.classList.toggle('active');
+      return;
+    }
+
+    const inputPw = prompt("관리자 비밀번호를 입력하세요:");
+    if (inputPw === "0104") {
+      isAdmin = true;
+      document.getElementById('adminPanel').classList.add('active');
+      renderLists();
+      alert("관리자 모드가 활성화되었습니다.");
+    } else if (inputPw !== null) {
+      alert("비밀번호가 일치하지 않습니다.");
+    }
+  };
+
+  window.toggleWatched = async function(id, currentStatus) {
+    if (!isAdmin) return;
+    try {
+      await updateDoc(doc(db, "replays", id), {
+        isWatched: !currentStatus
+      });
+    } catch (err) {
+      console.error("상태 업데이트 에러:", err);
+    }
+  };
+
+  window.editReplay = function(id) {
+    const allReplays = [...normalReplays, ...extraReplays];
+    const target = allReplays.find(r => r.id === id);
+    if (!target) return;
+
+    editingDocId = id;
+
+    document.getElementById('nickname').value = target.nickname || '';
+    document.getElementById('replayCode').value = target.replayCode || '';
+    
+    const matchRadio = document.querySelector(`input[name="matchType"][value="${target.matchType}"]`);
+    if (matchRadio) matchRadio.checked = true;
+
+    if (target.tier === '티어맞춤') {
+      tierGuessCheck.checked = true;
+    } else {
+      tierGuessCheck.checked = false;
+      if (target.tier && target.tier !== '-') {
+        tierSelect.value = target.tier;
+      }
+    }
+    updateTierState();
+
+    document.getElementById('title').value = target.title || '';
+
+    const tags = target.tags || [];
+    checkFollow.checked = tags.includes('팔로우');
+    checkSub.checked = tags.includes('구독자');
+
+    const cheeseTag = tags.find(t => t.includes('치즈'));
+    if (cheeseTag) {
+      checkCheese.checked = true;
+      cheeseBox.classList.add('active');
+      const amountMatch = cheeseTag.match(/\d+/);
+      if (amountMatch) {
+        document.getElementById('cheeseAmount').value = amountMatch[0];
+      }
+    } else {
+      checkCheese.checked = false;
+      cheeseBox.classList.remove('active');
+      document.getElementById('cheeseAmount').value = '';
+    }
+
+    document.getElementById('formTitleText').innerText = "📝 신청서 수정";
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.innerText = "수정 완료";
+    submitBtn.style.backgroundColor = "var(--gold)";
+    submitBtn.style.color = "#000";
+    document.getElementById('cancelEditBtn').style.display = "block";
+
+    document.getElementById('mainScrollArea').scrollTop = 0;
+  };
+
+  window.resetFormState = function() {
+    editingDocId = null;
+    document.getElementById('replayForm').reset();
+    cheeseBox.classList.remove('active');
+    updateTierState();
+
+    document.getElementById('formTitleText').innerText = "리플 코드 신청서 작성";
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.innerText = "리플 코드 신청하기";
+    submitBtn.style.backgroundColor = "var(--accent-blurple)";
+    submitBtn.style.color = "#fff";
+    document.getElementById('cancelEditBtn').style.display = "none";
+  };
+
+  window.deleteReplay = async function(id) {
+    if (!isAdmin) return;
+    if (confirm("해당 리플을 삭제하시겠습니까?")) {
+      try {
+        await deleteDoc(doc(db, "replays", id));
+      } catch (err) {
+        alert("삭제 실패: " + err.message);
+      }
+    }
+  };
+
+  window.resetAllReplays = async function() {
+    if (!isAdmin) return;
+    if (confirm("모든 리플 내역을 초기화하시겠습니까?")) {
+      try {
+        const batch = writeBatch(db);
+        [...normalReplays, ...extraReplays].forEach(item => {
+          batch.delete(doc(db, "replays", item.id));
+        });
+        await batch.commit();
+        alert("초기화 완료되었습니다.");
+      } catch (err) {
+        alert("초기화 실패: " + err.message);
+      }
+    }
+  };
+
+  window.copyCode = function(code) {
+    navigator.clipboard.writeText(code).then(() => {
+      alert(`[${code}] 코드 복사 완료!`);
+    }).catch(() => {
+      alert("복사 실패");
+    });
+  };
+
+  document.getElementById('replayForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const nickname = document.getElementById('nickname').value.trim();
+    const replayCode = document.getElementById('replayCode').value.trim().toUpperCase();
+    const matchType = document.querySelector('input[name="matchType"]:checked').value;
+    const isTierGuess = tierGuessCheck.checked;
+    const tier = isTierGuess ? '티어맞춤' : (tierSelect.disabled ? '-' : tierSelect.value);
+    const title = document.getElementById('title').value.trim();
+
+    const isFollow = checkFollow.checked;
+    const isSub = checkSub.checked;
+    const isCheese = checkCheese.checked;
+    const cheeseAmt = parseInt(document.getElementById('cheeseAmount').value) || 0;
+
+    if (isCheese && cheeseAmt < 2000) {
+      alert("치즈 추가 신청은 2,000 치즈 이상부터 가능합니다.");
+      return;
+    }
+
+    const tags = [];
+    if (isFollow) tags.push('팔로우');
+    if (isSub) tags.push('구독자');
+    if (isCheese) tags.push(`${cheeseAmt} 치즈`);
+
+    const isExtra = isFollow || isSub || isCheese;
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+
+    try {
+      if (editingDocId) {
+        await updateDoc(doc(db, "replays", editingDocId), {
+          nickname, replayCode, matchType, tier, title, tags, isExtra
+        });
+        alert("수정 완료되었습니다!");
+        resetFormState();
+      } else {
+        await addDoc(replaysCol, {
+          nickname, replayCode, matchType, tier, title, tags, isExtra,
+          isWatched: false,
+          createdAt: Date.now()
+        });
+        resetFormState();
+        alert("정상적으로 신청되었습니다!");
+      }
+    } catch (err) {
+      alert("처리에 실패했습니다: " + err.message);
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  const q = query(replaysCol, orderBy("createdAt", "asc"));
+  onSnapshot(q, (snapshot) => {
+    normalReplays = [];
+    extraReplays = [];
+
+    let normalCounter = 1;
+    let extraCounter = 1;
+
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      if (data.isExtra) {
+        extraReplays.unshift({ id: docSnap.id, ...data, slotOrder: extraCounter++ });
+      } else {
+        normalReplays.unshift({ id: docSnap.id, ...data, slotOrder: normalCounter++ });
+      }
+    });
+
+    renderLists();
+  }, (error) => {
+    console.error("데이터 수신 오류:", error);
+  });
+
+  function renderLists() {
+    renderVault('normalVault', normalReplays, '일반 신청 내역이 없습니다.');
+    renderVault('extraVault', extraReplays, '추가 신청 내역이 없습니다.');
+
+    document.getElementById('normalCount').innerText = normalReplays.length;
+    document.getElementById('extraCount').innerText = extraReplays.length;
+
+    const totalCount = normalReplays.length + extraReplays.length;
+    const isFollowChecked = document.getElementById('checkFollow').checked;
+    document.getElementById('slotDisplay').innerText = isFollowChecked ? `${totalCount} / 12개 (팔로우 혜택 적용)` : `${totalCount} / 12개`;
+  }
+
+  function renderVault(elementId, dataList, emptyText) {
+    const container = document.getElementById(elementId);
+    if (dataList.length === 0) {
+      container.innerHTML = `<div class="empty-msg">${emptyText}</div>`;
+      return;
+    }
+
+    container.innerHTML = dataList.map(item => `
+      <div class="replay-item ${item.isWatched ? 'watched' : ''}">
+        <div class="replay-left-sec">
+          <input type="checkbox" 
+                 class="admin-watch-check ${isAdmin ? 'active' : ''}" 
+                 ${item.isWatched ? 'checked' : ''} 
+                 onchange="toggleWatched('${item.id}', ${!!item.isWatched})">
+          <div class="replay-info">
+            <div class="replay-header">
+              <span class="tag-badge slot-order-tag">#${item.slotOrder}</span>
+              <span class="replay-code">${item.replayCode}</span>
+              <span class="tag-badge tier">${item.matchType} ${item.tier !== '-' ? '| ' + item.tier : ''}</span>
+              ${item.tags.map(t => `<span class="tag-badge ${t.includes('치즈') ? 'num-tag' : ''}">${t}</span>`).join('')}
+              ${item.isWatched ? '<span class="tag-badge watched-tag">✓ 완료</span>' : ''}
+            </div>
+            <div class="replay-subtext">
+              <b>${item.nickname}</b> ${item.title ? `- "${item.title}"` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="action-btn copy-btn" onclick="copyCode('${item.replayCode}')">복사</button>
+          <button class="action-btn edit-btn" onclick="editReplay('${item.id}')">수정</button>
+          <button class="action-btn delete-btn" style="display: ${isAdmin ? 'block' : 'none'};" onclick="deleteReplay('${item.id}')">삭제</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  updateTierState();
+</script>
+
+</body>
+</html>
